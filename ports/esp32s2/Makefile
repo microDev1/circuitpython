@@ -95,6 +95,7 @@ INC += -Iesp-idf/components/soc/include
 INC += -Iesp-idf/components/soc/src/esp32s2/include
 INC += -Iesp-idf/components/soc/soc/include
 INC += -Iesp-idf/components/soc/soc/esp32s2/include
+INC += -Iesp-idf/components/driver/esp32s2/include
 INC += -Iesp-idf/components/heap/include
 INC += -Iesp-idf/components/esp_system/include
 INC += -I$(BUILD)/esp-idf/config
