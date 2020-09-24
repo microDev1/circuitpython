@@ -34,8 +34,6 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-#include "common-hal/alarm/__init__.h"
-
 #include "common-hal/busio/I2C.h"
 #include "common-hal/busio/SPI.h"
 #include "common-hal/busio/UART.h"
@@ -84,9 +82,7 @@ safe_mode_t port_init(void) {
     if (heap == NULL) {
         return NO_HEAP;
     }
-
-    esp_wake_deep_sleep();
-
+    
     return NO_SAFE_MODE;
 }
 

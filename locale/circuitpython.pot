@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-09-11 13:30+0200\n"
+"POT-Creation-Date: 2020-09-24 14:56+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,13 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+#: main.c
+msgid ""
+"\n"
+"\n"
+"------ soft reboot ------\n"
+msgstr ""
 
 #: main.c
 msgid ""
@@ -3103,7 +3110,7 @@ msgstr ""
 msgid "size is defined for ndarrays only"
 msgstr ""
 
-#: shared-bindings/time/__init__.c
+#: shared-bindings/alarm_time/__init__.c shared-bindings/time/__init__.c
 msgid "sleep length must be non-negative"
 msgstr ""
 
@@ -3117,10 +3124,6 @@ msgstr ""
 
 #: py/objint.c py/sequence.c
 msgid "small int overflow"
-msgstr ""
-
-#: main.c
-msgid "soft reboot\n"
 msgstr ""
 
 #: extmod/ulab/code/numerical/numerical.c
