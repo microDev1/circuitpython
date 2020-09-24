@@ -82,7 +82,7 @@ safe_mode_t port_init(void) {
     if (heap == NULL) {
         return NO_HEAP;
     }
-    
+
     return NO_SAFE_MODE;
 }
 
