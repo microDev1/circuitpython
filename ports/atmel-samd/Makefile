@@ -286,8 +286,6 @@ SRC_ASF += \
 $(BUILD)/asf4/$(CHIP_FAMILY)/hpl/sdhc/hpl_sdhc.o: CFLAGS += -Wno-cast-align -Wno-implicit-fallthrough
 endif
 
-$(BUILD)/asf4/$(CHIP_FAMILY)/hpl/sercom/hpl_sercom.o: CFLAGS += -Wno-maybe-uninitialized
-
 SRC_ASF := $(addprefix asf4/$(CHIP_FAMILY)/, $(SRC_ASF))
 
 SRC_C += \
@@ -393,6 +391,10 @@ OBJ += $(addprefix $(BUILD)/, $(SRC_MOD:.c=.o))
 
 SRC_QSTR += $(HEADER_BUILD)/sdiodata.h
 $(HEADER_BUILD)/sdiodata.h: tools/mksdiodata.py | $(HEADER_BUILD)
+	$(Q)$(PYTHON3) $< > $@
+
+SRC_QSTR += $(HEADER_BUILD)/candata.h
+$(HEADER_BUILD)/candata.h: tools/mkcandata.py | $(HEADER_BUILD)
 	$(Q)$(PYTHON3) $< > $@
 
 SRC_QSTR += $(SRC_C) $(SRC_SUPERVISOR) $(SRC_COMMON_HAL_EXPANDED) $(SRC_SHARED_MODULE_EXPANDED)
