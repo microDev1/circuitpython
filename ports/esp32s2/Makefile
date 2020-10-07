@@ -73,31 +73,36 @@ INC += -I./peripherals
 INC += -I../../lib/mp-readline
 INC += -I../../lib/tinyusb/src
 INC += -I../../supervisor/shared/usb
-INC += -Iesp-idf/components/freertos/include/freertos
-INC += -Iesp-idf/components/freertos/xtensa/include
-INC += -Iesp-idf/components/esp32s2/include
-INC += -Iesp-idf/components/xtensa/esp32s2/include
-INC += -Iesp-idf/components/esp_common/include
-INC += -Iesp-idf/components/esp_event/include
-INC += -Iesp-idf/components/esp_netif/include
-INC += -Iesp-idf/components/esp_ringbuf/include
-INC += -Iesp-idf/components/esp_rom/include
-INC += -Iesp-idf/components/esp_wifi/include
-INC += -Iesp-idf/components/xtensa/include
-INC += -Iesp-idf/components/esp_timer/include
-INC += -Iesp-idf/components/mbedtls/mbedtls/include
-INC += -Iesp-idf/components/mbedtls/port/include/
-INC += -Iesp-idf/components/newlib/platform_include
-INC += -Iesp-idf/components/lwip/lwip/src/include
-INC += -Iesp-idf/components/lwip/port/esp32/include
-INC += -Iesp-idf/components/lwip/include/apps/sntp
-INC += -Iesp-idf/components/soc/include
-INC += -Iesp-idf/components/soc/src/esp32s2/include
-INC += -Iesp-idf/components/soc/soc/include
-INC += -Iesp-idf/components/soc/soc/esp32s2/include
-INC += -Iesp-idf/components/driver/esp32s2/include
-INC += -Iesp-idf/components/heap/include
-INC += -Iesp-idf/components/esp_system/include
+
+INC += -isystem esp-idf
+INC += -isystem esp-idf/components/driver/include
+INC += -isystem esp-idf/components/freertos/include/freertos
+INC += -isystem esp-idf/components/freertos/xtensa/include
+INC += -isystem esp-idf/components/esp32s2/include
+INC += -isystem esp-idf/components/xtensa/esp32s2/include
+INC += -isystem esp-idf/components/esp_common/include
+INC += -isystem esp-idf/components/esp_event/include
+INC += -isystem esp-idf/components/esp_netif/include
+INC += -isystem esp-idf/components/esp_ringbuf/include
+INC += -isystem esp-idf/components/esp_rom/include
+INC += -isystem esp-idf/components/esp_wifi/include
+INC += -isystem esp-idf/components/xtensa/include
+INC += -isystem esp-idf/components/esp_timer/include
+INC += -isystem esp-idf/components/mbedtls/mbedtls/include
+INC += -isystem esp-idf/components/mbedtls/port/include/
+INC += -isystem esp-idf/components/newlib/platform_include
+INC += -isystem esp-idf/components/lwip/lwip/src/include
+INC += -isystem esp-idf/components/lwip/port/esp32/include
+INC += -isystem esp-idf/components/lwip/include/apps/sntp
+INC += -isystem esp-idf/components/hal/include
+INC += -isystem esp-idf/components/hal/esp32s2/include
+INC += -isystem esp-idf/components/log/include/
+INC += -isystem esp-idf/components/soc/include
+INC += -isystem esp-idf/components/soc/src/esp32s2/include
+INC += -isystem esp-idf/components/soc/soc/include
+INC += -isystem esp-idf/components/soc/soc/esp32s2/include
+INC += -isystem esp-idf/components/heap/include
+INC += -isystem esp-idf/components/esp_system/include
 INC += -I$(BUILD)/esp-idf/config
 
 CFLAGS += -DHAVE_CONFIG_H \
@@ -229,9 +234,17 @@ IDF_PATH = $(realpath ./esp-idf)
 $(BUILD)/esp-idf:
 	$(Q)$(MKDIR) -p $@
 
+FLASH_SDKCONFIG = esp-idf-config/sdkconfig-$(CIRCUITPY_ESP_FLASH_SIZE).defaults
+ifeq ($(DEBUG), 1)
+	DEBUG_SDKCONFIG = esp-idf-config/sdkconfig-debug.defaults
+else
+	DEBUG_SDKCONFIG = esp-idf-config/sdkconfig-opt.defaults
+endif
+SDKCONFIGS = esp-idf-config/sdkconfig.defaults;$(DEBUG_SDKCONFIG);$(FLASH_SDKCONFIG);boards/$(BOARD)/sdkconfig
+
 # create the config headers
 $(BUILD)/esp-idf/config/sdkconfig.h: boards/$(BOARD)/sdkconfig | $(BUILD)/esp-idf
-	IDF_PATH=$(IDF_PATH) cmake -S . -B $(BUILD)/esp-idf -DSDKCONFIG=$(BUILD)/esp-idf/sdkconfig -DSDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig-$(CIRCUITPY_ESP_FLASH_SIZE).defaults;boards/$(BOARD)/sdkconfig" -DCMAKE_TOOLCHAIN_FILE=$(IDF_PATH)/tools/cmake/toolchain-esp32s2.cmake -DIDF_TARGET=esp32s2 -GNinja
+	IDF_PATH=$(IDF_PATH) cmake -S . -B $(BUILD)/esp-idf -DSDKCONFIG=$(BUILD)/esp-idf/sdkconfig -DSDKCONFIG_DEFAULTS="$(SDKCONFIGS)" -DCMAKE_TOOLCHAIN_FILE=$(IDF_PATH)/tools/cmake/toolchain-esp32s2.cmake -DIDF_TARGET=esp32s2 -GNinja
 
 # build a lib
 # Adding -d explain -j 1 -v to the ninja line will output debug info
@@ -248,10 +261,11 @@ $(BUILD)/esp-idf/esp-idf/esp32s2/ld/esp32s2.project.ld: $(BUILD)/esp-idf/config/
 $(BUILD)/esp-idf/partition_table/partition-table.bin: $(BUILD)/esp-idf/config/sdkconfig.h
 	IDF_PATH=$(IDF_PATH) ninja -C $(BUILD)/esp-idf partition_table/partition-table.bin
 
-# run menuconfig
+# run menuconfig and then remove standard settings
 menuconfig: $(BUILD)/esp-idf/config
 	$(Q)ninja -C $(BUILD)/esp-idf menuconfig
-	$(Q)diff --old-line-format= --unchanged-line-format= sdkconfig.defaults $(BUILD)/esp-idf/sdkconfig > boards/$(BOARD)/sdkconfig || true
+	$(Q)diff --old-line-format= --unchanged-line-format= esp-idf-config/sdkconfig.defaults $(BUILD)/esp-idf/sdkconfig > $(BUILD)/sdkconfig.diff || true
+	$(Q)grep -Fvxf $(DEBUG_SDKCONFIG) -f $(FLASH_SDKCONFIG) $(BUILD)/sdkconfig.diff > boards/$(BOARD)/sdkconfig
 
 # qstr builds include headers so we need to make sure they are up to date
 $(HEADER_BUILD)/qstr.i.last: | $(BUILD)/esp-idf/config/sdkconfig.h
@@ -308,8 +322,6 @@ $(BUILD)/firmware.elf: $(OBJ) | esp-idf-stamp
 $(BUILD)/circuitpython-firmware.bin: $(BUILD)/firmware.elf
 	$(STEPECHO) "Create $@"
 	$(Q)esptool.py --chip esp32s2 elf2image $(FLASH_FLAGS) --elf-sha256-offset 0xb0 -o $@ $^
-#	$(Q)$(OBJCOPY) -O binary $^ $@
-#   $(Q)$(OBJCOPY) -O binary -j .vectors -j .text -j .data $^ $@
 
 $(BUILD)/firmware.bin: $(BUILD)/circuitpython-firmware.bin | esp-idf-stamp
 	$(Q)$(PYTHON) ../../tools/join_bins.py $@ 0x1000 $(BUILD)/esp-idf/bootloader/bootloader.bin 0x8000 $(BUILD)/esp-idf/partition_table/partition-table.bin 0x10000 $(BUILD)/circuitpython-firmware.bin

@@ -427,6 +427,7 @@ SRC_SHARED_MODULE_ALL = \
 	_bleio/ScanResults.c \
 	canio/Match.c \
 	canio/Message.c \
+	canio/RemoteTransmissionRequest.c \
 	_eve/__init__.c \
 	_pixelbuf/PixelBuf.c \
 	_pixelbuf/__init__.c \
