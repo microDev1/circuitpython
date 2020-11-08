@@ -104,6 +104,9 @@ INC += -isystem esp-idf/components/soc/soc/include
 INC += -isystem esp-idf/components/soc/soc/esp32s2/include
 INC += -isystem esp-idf/components/heap/include
 INC += -isystem esp-idf/components/esp_system/include
+INC += -isystem esp-cam/components/cam/include
+INC += -isystem esp-cam/components/jpeg/include
+INC += -isystem esp-cam/components/sensors/include
 INC += -I$(BUILD)/esp-idf/config
 
 CFLAGS += -DHAVE_CONFIG_H \
@@ -177,6 +180,12 @@ SRC_C += \
 	boards/$(BOARD)/board.c \
 	boards/$(BOARD)/pins.c \
 	modules/$(CIRCUITPY_MODULE).c \
+	esp-cam/components/cam/cam.c \
+	esp-cam/components/jpeg/jpeg.c \
+	esp-cam/components/sensors/ov2640.c \
+	esp-cam/components/sensors/ov3660.c \
+	esp-cam/components/sensors/sccb.c \
+	esp-cam/components/sensors/sensor.c \
 	lib/libc/string0.c \
 	lib/mp-readline/readline.c \
 	lib/oofatfs/ff.c \

@@ -30,6 +30,8 @@
 #include "py/runtime.h"
 #include "shared-bindings/camera/Camera.h"
 
+#include "cam.h"
+
 typedef struct {
     uint16_t width;
     uint16_t height;
