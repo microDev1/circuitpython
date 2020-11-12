@@ -24,21 +24,48 @@
  * THE SOFTWARE.
  */
 
-#ifndef MICROPY_INCLUDED_ESP32S2_COMMON_HAL_BUSIO_I2C_PERIPHERAL_H
-#define MICROPY_INCLUDED_ESP32S2_COMMON_HAL_BUSIO_I2C_PERIPHERAL_H
-
-#include "py/obj.h"
 #include "peripherals/i2c.h"
-#include "common-hal/microcontroller/Pin.h"
 
-typedef struct {
-    mp_obj_base_t base;
-    uint8_t *addresses;
-    unsigned int num_addresses;
-    const mcu_pin_obj_t* scl_pin;
-    const mcu_pin_obj_t* sda_pin;
-    i2c_port_t i2c_num;
-    bool writing;
-} i2cperipheral_i2c_peripheral_obj_t;
+typedef enum {
+    STATUS_FREE = 0,
+    STATUS_IN_USE,
+    STATUS_NEVER_RESET
+} i2c_status_t;
 
-#endif // MICROPY_INCLUDED_ESP32S2_COMMON_HAL_BUSIO_I2C_PERIPHERAL_H
+static i2c_status_t i2c_status[I2C_NUM_MAX];
+
+void i2c_reset(void) {
+    for (i2c_port_t num = 0; num < I2C_NUM_MAX; num++) {
+        if (i2c_status[num] == STATUS_IN_USE) {
+            i2c_driver_delete(num);
+            i2c_status[num] = STATUS_FREE;
+        }
+    }
+}
+
+void never_reset_i2c(i2c_port_t num) {
+    i2c_status[num] = STATUS_NEVER_RESET;
+}
+
+bool peripherals_i2c_init(i2c_port_t num, const i2c_config_t * i2c_conf) {
+    i2c_param_config(num, i2c_conf);
+    return i2c_driver_install(num, i2c_conf->mode, 0, 0, 0) == ESP_OK;
+}
+
+void peripherals_i2c_deinit(i2c_port_t num) {
+    i2c_driver_delete(num);
+    i2c_status[num] = STATUS_FREE;
+}
+
+i2c_port_t i2c_num_status(void) {
+    i2c_port_t i2c_num = I2C_NUM_MAX;
+    for (i2c_port_t num = 0; num < I2C_NUM_MAX; num++) {
+        if (i2c_status[num] == STATUS_FREE) {
+            i2c_num = num;
+        }
+    }
+    if (i2c_num != I2C_NUM_MAX) {
+        i2c_status[i2c_num] = STATUS_IN_USE;
+    }
+    return i2c_num;
+}

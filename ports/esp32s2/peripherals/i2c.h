@@ -24,21 +24,15 @@
  * THE SOFTWARE.
  */
 
-#ifndef MICROPY_INCLUDED_ESP32S2_COMMON_HAL_BUSIO_I2C_PERIPHERAL_H
-#define MICROPY_INCLUDED_ESP32S2_COMMON_HAL_BUSIO_I2C_PERIPHERAL_H
+#ifndef MICROPY_INCLUDED_ESP32S2_PERIPHERALS_I2C_HANDLER_H
+#define MICROPY_INCLUDED_ESP32S2_PERIPHERALS_I2C_HANDLER_H
 
-#include "py/obj.h"
-#include "peripherals/i2c.h"
-#include "common-hal/microcontroller/Pin.h"
+#include "driver/i2c.h"
 
-typedef struct {
-    mp_obj_base_t base;
-    uint8_t *addresses;
-    unsigned int num_addresses;
-    const mcu_pin_obj_t* scl_pin;
-    const mcu_pin_obj_t* sda_pin;
-    i2c_port_t i2c_num;
-    bool writing;
-} i2cperipheral_i2c_peripheral_obj_t;
+extern void i2c_reset(void);
+extern void never_reset_i2c(i2c_port_t num);
+extern bool peripherals_i2c_init(i2c_port_t num, const i2c_config_t * i2c_conf);
+extern void peripherals_i2c_deinit(i2c_port_t num);
+extern i2c_port_t i2c_num_status(void);
 
-#endif // MICROPY_INCLUDED_ESP32S2_COMMON_HAL_BUSIO_I2C_PERIPHERAL_H
+#endif  // MICROPY_INCLUDED_ESP32S2_PERIPHERALS_I2C_HANDLER_H

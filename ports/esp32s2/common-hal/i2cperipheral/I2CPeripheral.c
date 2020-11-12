@@ -26,19 +26,49 @@
 
 #include "shared-bindings/i2cperipheral/I2CPeripheral.h"
 
+#include "py/mperrno.h"
 #include "py/runtime.h"
 
 #include "common-hal/busio/I2C.h"
-#include "common-hal/microcontroller/Pin.h"
 
 void common_hal_i2cperipheral_i2c_peripheral_construct(i2cperipheral_i2c_peripheral_obj_t *self,
         const mcu_pin_obj_t *scl, const mcu_pin_obj_t *sda,
         uint8_t *addresses, unsigned int num_addresses, bool smbus) {
+    // Pins 45 and 46 are "strapping" pins that impact start up behavior. They usually need to
+    // be pulled-down so pulling them up for I2C is a bad idea. To make this hard, we don't
+    // support I2C on these pins.
+    //
+    // 46 is also input-only so it'll never work.
+    if (scl->number == 45 || scl->number == 46 || sda->number == 45 || sda->number == 46) {
+        mp_raise_ValueError(translate("Invalid pins"));
+    }
 
+    self->sda_pin = sda;
+    self->scl_pin = scl;
+    self->i2c_num = i2c_num_status();
+
+    if (self->i2c_num == I2C_NUM_MAX) {
+        mp_raise_ValueError(translate("All I2C peripherals are in use"));
+    }
+
+    const i2c_config_t i2c_conf = {
+        .mode = I2C_MODE_SLAVE,
+        .sda_io_num = self->sda_pin->number,
+        .scl_io_num = self->scl_pin->number,
+        .sda_pullup_en = GPIO_PULLUP_ENABLE,  /*!< Internal GPIO pull mode for I2C sda signal*/
+        .scl_pullup_en = GPIO_PULLUP_ENABLE,  /*!< Internal GPIO pull mode for I2C scl signal*/
+    };
+
+    if (!peripherals_i2c_init(self->i2c_num, &i2c_conf)) {
+        mp_raise_OSError(MP_EIO);
+    }
+
+    claim_pin(sda);
+    claim_pin(scl);
 }
 
 bool common_hal_i2cperipheral_i2c_peripheral_deinited(i2cperipheral_i2c_peripheral_obj_t *self) {
-    return self->sda_pin == -1;
+    return self->sda_pin == NULL;
 }
 
 void common_hal_i2cperipheral_i2c_peripheral_deinit(i2cperipheral_i2c_peripheral_obj_t *self) {
@@ -46,10 +76,12 @@ void common_hal_i2cperipheral_i2c_peripheral_deinit(i2cperipheral_i2c_peripheral
         return;
     }
 
-    reset_pin_number(self->sda_pin);
-    reset_pin_number(self->scl_pin);
-    self->sda_pin = -1;
-    self->scl_pin = -1;
+    peripherals_i2c_deinit(self->i2c_num);
+
+    common_hal_reset_pin(self->sda_pin);
+    common_hal_reset_pin(self->scl_pin);
+    self->sda_pin = NULL;
+    self->scl_pin = NULL;
 }
 
 int common_hal_i2cperipheral_i2c_peripheral_is_addressed(i2cperipheral_i2c_peripheral_obj_t *self,
