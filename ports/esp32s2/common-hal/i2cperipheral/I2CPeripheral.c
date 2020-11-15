@@ -29,7 +29,7 @@
 #include "py/mperrno.h"
 #include "py/runtime.h"
 
-#include "common-hal/busio/I2C.h"
+#include "common-hal/i2cperipheral/I2CPeripheral.h"
 
 void common_hal_i2cperipheral_i2c_peripheral_construct(i2cperipheral_i2c_peripheral_obj_t *self,
         const mcu_pin_obj_t *scl, const mcu_pin_obj_t *sda,
@@ -43,6 +43,11 @@ void common_hal_i2cperipheral_i2c_peripheral_construct(i2cperipheral_i2c_periphe
         mp_raise_ValueError(translate("Invalid pins"));
     }
 
+    if (num_addresses > 2) {
+        mp_raise_ValueError(translate("Maximum of 2 addresses allowed"));
+    }
+    self->num_addresses = num_addresses;
+
     self->sda_pin = sda;
     self->scl_pin = scl;
     self->i2c_num = i2c_num_status();
@@ -55,8 +60,10 @@ void common_hal_i2cperipheral_i2c_peripheral_construct(i2cperipheral_i2c_periphe
         .mode = I2C_MODE_SLAVE,
         .sda_io_num = self->sda_pin->number,
         .scl_io_num = self->scl_pin->number,
-        .sda_pullup_en = GPIO_PULLUP_ENABLE,  /*!< Internal GPIO pull mode for I2C sda signal*/
-        .scl_pullup_en = GPIO_PULLUP_ENABLE,  /*!< Internal GPIO pull mode for I2C scl signal*/
+        .sda_pullup_en = GPIO_PULLUP_ENABLE,
+        .scl_pullup_en = GPIO_PULLUP_ENABLE,
+        .slave.addr_10bit_en = 0,
+        .slave.slave_addr = addresses[0] & 0x7F,
     };
 
     if (!peripherals_i2c_init(self->i2c_num, &i2c_conf)) {
@@ -93,10 +100,13 @@ int common_hal_i2cperipheral_i2c_peripheral_is_addressed(i2cperipheral_i2c_perip
 }
 
 int common_hal_i2cperipheral_i2c_peripheral_read_byte(i2cperipheral_i2c_peripheral_obj_t *self, uint8_t *data) {
+    i2c_slave_read_buffer(self->i2c_num, data, 128, 0);
     return 1;
 }
 
 int common_hal_i2cperipheral_i2c_peripheral_write_byte(i2cperipheral_i2c_peripheral_obj_t *self, uint8_t data) {
+    i2c_reset_tx_fifo(self->i2c_num);
+    i2c_slave_write_buffer(self->i2c_num, &data, 128, 0);
     return 1;
 }
 

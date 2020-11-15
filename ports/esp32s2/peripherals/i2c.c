@@ -49,10 +49,18 @@ void never_reset_i2c(i2c_port_t num) {
 
 bool peripherals_i2c_init(i2c_port_t num, const i2c_config_t * i2c_conf) {
     i2c_param_config(num, i2c_conf);
-    return i2c_driver_install(num, i2c_conf->mode, 0, 0, 0) == ESP_OK;
+    size_t rx_buf_len = 0;
+    size_t tx_buf_len = 0;
+    if (i2c_conf->mode == I2C_MODE_SLAVE) {
+        rx_buf_len = 256;
+        tx_buf_len = 256;
+    }
+    return i2c_driver_install(num, i2c_conf->mode, rx_buf_len, tx_buf_len, 0) == ESP_OK;
 }
 
 void peripherals_i2c_deinit(i2c_port_t num) {
+    i2c_reset_rx_fifo(num);
+    i2c_reset_tx_fifo(num);
     i2c_driver_delete(num);
     i2c_status[num] = STATUS_FREE;
 }
