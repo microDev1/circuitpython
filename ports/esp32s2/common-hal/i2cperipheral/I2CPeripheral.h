@@ -33,12 +33,11 @@
 
 typedef struct {
     mp_obj_base_t base;
+    i2c_port_t i2c_num;
     uint8_t *addresses;
-    unsigned int num_addresses;
+    uint8_t num_addresses;
     const mcu_pin_obj_t* scl_pin;
     const mcu_pin_obj_t* sda_pin;
-    i2c_port_t i2c_num;
-    bool writing;
 } i2cperipheral_i2c_peripheral_obj_t;
 
 #endif // MICROPY_INCLUDED_ESP32S2_COMMON_HAL_BUSIO_I2C_PERIPHERAL_H
