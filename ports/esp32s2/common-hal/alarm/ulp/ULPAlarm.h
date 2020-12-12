@@ -33,7 +33,4 @@ typedef struct {
 
 // Find the alarm object that caused us to wake up or create an equivalent one.
 mp_obj_t alarm_ulp_ulpalarm_get_wakeup_alarm(size_t n_alarms, const mp_obj_t *alarms);
-// Check for the wake up alarm from pretend deep sleep.
-bool alarm_ulp_ulpalarm_woke_us_up(void);
 void alarm_ulp_ulpalarm_set_alarm(alarm_ulp_ulp_alarm_obj_t *self);
-void alarm_ulp_ulpalarm_reset(void);

@@ -106,6 +106,8 @@ INC += -isystem esp-idf/components/heap/include
 INC += -isystem esp-idf/components/esp_system/include
 INC += -isystem esp-idf/components/spi_flash/include
 INC += -isystem esp-idf/components/nvs_flash/include
+INC += -isystem esp-idf/components/ulp/include
+INC += -isystem esp-idf/components/ulp/ulp_riscv/include
 INC += -I$(BUILD)/esp-idf/config
 
 CFLAGS += -DHAVE_CONFIG_H \
@@ -276,7 +278,7 @@ menuconfig: $(BUILD)/esp-idf/config
 # qstr builds include headers so we need to make sure they are up to date
 $(HEADER_BUILD)/qstr.split: | $(BUILD)/esp-idf/config/sdkconfig.h
 
-ESP_IDF_COMPONENTS_LINK = freertos log hal esp_system esp_adc_cal esp32s2 bootloader_support pthread esp_timer vfs spi_flash app_update esp_common esp32s2 heap newlib driver xtensa soc esp_ringbuf esp_wifi esp_event wpa_supplicant mbedtls efuse nvs_flash esp_netif lwip esp_rom esp-tls
+ESP_IDF_COMPONENTS_LINK = freertos log hal esp_system esp_adc_cal esp32s2 bootloader_support pthread esp_timer vfs spi_flash app_update esp_common esp32s2 heap newlib driver xtensa soc ulp esp_ringbuf esp_wifi esp_event wpa_supplicant mbedtls efuse nvs_flash esp_netif lwip esp_rom esp-tls
 
 ESP_IDF_COMPONENTS_INCLUDE = driver freertos log soc
 
@@ -311,6 +313,7 @@ esp-idf-stamp: $(BUILD)/esp-idf/config/sdkconfig.h
 		esp-idf/esp_rom/libesp_rom.a \
 		esp-idf/esp_system/libesp_system.a \
 		esp-idf/esp_wifi/libesp_wifi.a \
+		esp-idf/ulp/libulp.a \
 		esp-idf/lwip/liblwip.a \
 		esp-idf/nvs_flash/libnvs_flash.a \
 		esp-idf/wpa_supplicant/libwpa_supplicant.a \

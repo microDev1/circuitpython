@@ -31,6 +31,7 @@
 
 #include "shared-bindings/alarm/pin/PinAlarm.h"
 #include "shared-bindings/alarm/time/TimeAlarm.h"
+#include "shared-bindings/alarm/ulp/ULPAlarm.h"
 #include "shared-bindings/microcontroller/__init__.h"
 #include "shared-bindings/wifi/__init__.h"
 
@@ -74,6 +75,12 @@ STATIC mp_obj_t _get_wake_alarm(size_t n_alarms, const mp_obj_t *alarms) {
             // Wake up from touch on pad, esp_sleep_get_touchpad_wakeup_status()
             break;
 
+        case ESP_SLEEP_WAKEUP_ULP:
+        case ESP_SLEEP_WAKEUP_COCPU:
+        case ESP_SLEEP_WAKEUP_COCPU_TRAP_TRIG:
+            return alarm_ulp_ulpalarm_get_wakeup_alarm(n_alarms, alarms);
+            break;
+
         case ESP_SLEEP_WAKEUP_UNDEFINED:
         default:
             // Not a deep sleep reset.
@@ -89,7 +96,9 @@ mp_obj_t common_hal_alarm_get_wake_alarm(void) {
 // Set up light sleep or deep sleep alarms.
 STATIC void _setup_sleep_alarms(bool deep_sleep, size_t n_alarms, const mp_obj_t *alarms) {
     bool time_alarm_set = false;
+    bool ulp_alarm_set = false;
     alarm_time_time_alarm_obj_t *time_alarm = MP_OBJ_NULL;
+    alarm_ulp_ulp_alarm_obj_t *ulp_alarm = MP_OBJ_NULL;
 
     for (size_t i = 0; i < n_alarms; i++) {
         if (MP_OBJ_IS_TYPE(alarms[i], &alarm_pin_pin_alarm_type)) {
@@ -100,11 +109,22 @@ STATIC void _setup_sleep_alarms(bool deep_sleep, size_t n_alarms, const mp_obj_t
             }
             time_alarm  = MP_OBJ_TO_PTR(alarms[i]);
             time_alarm_set = true;
+        } else if (MP_OBJ_IS_TYPE(alarms[i], &alarm_ulp_ulp_alarm_type)) {
+            if (deep_sleep) {
+                if (ulp_alarm_set) {
+                    mp_raise_ValueError(translate("Only one alarm.ulp alarm can be set."));
+                }
+                ulp_alarm  = MP_OBJ_TO_PTR(alarms[i]);
+                ulp_alarm_set = true;
+            }
         }
     }
 
     if (time_alarm_set) {
         alarm_time_timealarm_set_alarm(time_alarm);
+    }
+    if (ulp_alarm_set) {
+        alarm_ulp_ulpalarm_set_alarm(ulp_alarm);
     }
 }
 

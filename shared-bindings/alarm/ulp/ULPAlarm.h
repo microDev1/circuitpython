@@ -33,6 +33,7 @@
 
 extern const mp_obj_type_t alarm_ulp_ulp_alarm_type;
 
-extern void common_hal_alarm_ulp_ulp_alarm_construct(alarm_ulp_ulp_alarm_obj_t *self, const uint8_t *buf, const size_t len);
+extern void common_hal_alarm_ulp_ulp_alarm_construct(alarm_ulp_ulp_alarm_obj_t *self,
+        const uint8_t *buf, const size_t len);
 
 #endif  // MICROPY_INCLUDED_SHARED_BINDINGS_ALARM_ULP_ULP_ALARM_H

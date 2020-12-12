@@ -24,29 +24,33 @@
  * THE SOFTWARE.
  */
 
-#include "esp_sleep.h"
-
-#include "py/runtime.h"
-#include "supervisor/esp_port.h"
-
 #include "shared-bindings/alarm/ulp/ULPAlarm.h"
 
-void common_hal_alarm_ulp_ulp_alarm_construct(alarm_ulp_ulp_alarm_obj_t *self, const uint8_t *buf, const size_t len) {
-    ulp_load_binary(0, buf, len);
+#include "py/runtime.h"
+
+#include "esp_sleep.h"
+#include "esp32s2/ulp_riscv.h"
+
+void common_hal_alarm_ulp_ulp_alarm_construct(alarm_ulp_ulp_alarm_obj_t *self,
+        const uint8_t *buf, const size_t len) {
+    if (ulp_riscv_load_binary(buf, len) != ESP_OK) {
+            mp_raise_RuntimeError(translate("program exceeds reserved memeory"));
+    }
 }
 
 mp_obj_t alarm_ulp_ulpalarm_get_wakeup_alarm(size_t n_alarms, const mp_obj_t *alarms) {
-    return mp_const_none;
-}
-
-bool alarm_ulp_ulpalarm_woke_us_up(void) {
-    return false;
-}
-
-void alarm_ulp_ulpalarm_reset(void) {
-
+    // First, check to see if we match
+    for (size_t i = 0; i < n_alarms; i++) {
+        if (MP_OBJ_IS_TYPE(alarms[i], &alarm_ulp_ulp_alarm_type)) {
+            return alarms[i];
+        }
+    }
+    alarm_ulp_ulp_alarm_obj_t *alarm = m_new_obj(alarm_ulp_ulp_alarm_obj_t);
+    alarm->base.type = &alarm_ulp_ulp_alarm_type;
+    return alarm;
 }
 
 void alarm_ulp_ulpalarm_set_alarm(alarm_ulp_ulp_alarm_obj_t *self) {
-
+    esp_sleep_enable_ulp_wakeup();
+    ulp_riscv_run();
 }
