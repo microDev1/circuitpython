@@ -34,7 +34,7 @@
 //| class ULPAlarm:
 //|     """Trigger an alarm when the ulp co-processor requests wake-up."""
 //|
-//|     def __init__(self, *buffer: WriteableBuffer, offset: int=0) -> None:
+//|     def __init__(self, *buffer: ReadableBuffer) -> None:
 //|         """Create an alarm that will be triggered when ulp co-processor requests
 //|         wake-up when certain condition (decided by ulp program) is met.
 //|

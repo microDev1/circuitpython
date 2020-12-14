@@ -31,6 +31,7 @@
 #include "shared-bindings/alarm/__init__.h"
 #include "shared-bindings/alarm/pin/PinAlarm.h"
 #include "shared-bindings/alarm/time/TimeAlarm.h"
+#include "shared-bindings/alarm/ulp/ULPAlarm.h"
 #include "shared-bindings/supervisor/Runtime.h"
 #include "shared-bindings/time/__init__.h"
 #include "supervisor/shared/autoreload.h"
@@ -67,7 +68,8 @@
 void validate_objs_are_alarms(size_t n_args, const mp_obj_t *objs) {
     for (size_t i = 0; i < n_args; i++) {
         if (MP_OBJ_IS_TYPE(objs[i], &alarm_pin_pin_alarm_type) ||
-            MP_OBJ_IS_TYPE(objs[i], &alarm_time_time_alarm_type)) {
+            MP_OBJ_IS_TYPE(objs[i], &alarm_time_time_alarm_type) ||
+            MP_OBJ_IS_TYPE(objs[i], &alarm_ulp_ulp_alarm_type)) {
             continue;
         }
         mp_raise_TypeError_varg(translate("Expected an alarm"));
@@ -177,6 +179,18 @@ STATIC const mp_obj_module_t alarm_time_module = {
     .globals = (mp_obj_dict_t*)&alarm_time_globals,
 };
 
+STATIC const mp_map_elem_t alarm_ulp_globals_table[] = {
+    { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_ulp) },
+    { MP_ROM_QSTR(MP_QSTR_ULPAlarm), MP_OBJ_FROM_PTR(&alarm_ulp_ulp_alarm_type) },
+};
+
+STATIC MP_DEFINE_CONST_DICT(alarm_ulp_globals, alarm_ulp_globals_table);
+
+STATIC const mp_obj_module_t alarm_ulp_module = {
+    .base = { &mp_type_module },
+    .globals = (mp_obj_dict_t*)&alarm_ulp_globals,
+};
+
 STATIC mp_map_elem_t alarm_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_alarm) },
 
@@ -188,8 +202,8 @@ STATIC mp_map_elem_t alarm_module_globals_table[] = {
                                                MP_OBJ_FROM_PTR(&alarm_exit_and_deep_sleep_until_alarms_obj) },
 
     { MP_ROM_QSTR(MP_QSTR_pin), MP_OBJ_FROM_PTR(&alarm_pin_module) },
-    { MP_ROM_QSTR(MP_QSTR_time), MP_OBJ_FROM_PTR(&alarm_time_module) }
-
+    { MP_ROM_QSTR(MP_QSTR_time), MP_OBJ_FROM_PTR(&alarm_time_module) },
+    { MP_ROM_QSTR(MP_QSTR_ulp), MP_OBJ_FROM_PTR(&alarm_ulp_module) },
 };
 STATIC MP_DEFINE_MUTABLE_DICT(alarm_module_globals, alarm_module_globals_table);
 
