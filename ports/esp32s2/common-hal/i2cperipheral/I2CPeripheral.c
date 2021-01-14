@@ -29,7 +29,7 @@
 #include "py/mperrno.h"
 #include "py/runtime.h"
 
-#include "common-hal/busio/I2C.h"
+#include "common-hal/i2cperipheral/I2CPeripheral.h"
 
 void common_hal_i2cperipheral_i2c_peripheral_construct(i2cperipheral_i2c_peripheral_obj_t *self,
         const mcu_pin_obj_t *scl, const mcu_pin_obj_t *sda,
@@ -37,11 +37,15 @@ void common_hal_i2cperipheral_i2c_peripheral_construct(i2cperipheral_i2c_periphe
     // Pins 45 and 46 are "strapping" pins that impact start up behavior. They usually need to
     // be pulled-down so pulling them up for I2C is a bad idea. To make this hard, we don't
     // support I2C on these pins.
-    //
-    // 46 is also input-only so it'll never work.
+    // Also 46 is input-only so it'll never work.
     if (scl->number == 45 || scl->number == 46 || sda->number == 45 || sda->number == 46) {
         mp_raise_ValueError(translate("Invalid pins"));
     }
+
+    if (num_addresses > 1) {
+        mp_raise_ValueError(translate("Maximum of 1 address allowed"));
+    }
+    self->addresses = addresses;
 
     self->sda_pin = sda;
     self->scl_pin = scl;
@@ -55,8 +59,10 @@ void common_hal_i2cperipheral_i2c_peripheral_construct(i2cperipheral_i2c_periphe
         .mode = I2C_MODE_SLAVE,
         .sda_io_num = self->sda_pin->number,
         .scl_io_num = self->scl_pin->number,
-        .sda_pullup_en = GPIO_PULLUP_ENABLE,  /*!< Internal GPIO pull mode for I2C sda signal*/
-        .scl_pullup_en = GPIO_PULLUP_ENABLE,  /*!< Internal GPIO pull mode for I2C scl signal*/
+        .sda_pullup_en = GPIO_PULLUP_ENABLE,
+        .scl_pullup_en = GPIO_PULLUP_ENABLE,
+        .slave.addr_10bit_en = 0,
+        .slave.slave_addr = self->addresses[0],
     };
 
     if (!peripherals_i2c_init(self->i2c_num, &i2c_conf)) {
@@ -86,17 +92,20 @@ void common_hal_i2cperipheral_i2c_peripheral_deinit(i2cperipheral_i2c_peripheral
 
 int common_hal_i2cperipheral_i2c_peripheral_is_addressed(i2cperipheral_i2c_peripheral_obj_t *self,
         uint8_t *address, bool *is_read, bool *is_restart) {
-
-    // This should clear AMATCH, but it doesn't...
-    common_hal_i2cperipheral_i2c_peripheral_ack(self, false);
-    return 0;
+    *address = self->addresses[0];
+    *is_read = true;
+    *is_restart = false;
+    return 1;
 }
 
 int common_hal_i2cperipheral_i2c_peripheral_read_byte(i2cperipheral_i2c_peripheral_obj_t *self, uint8_t *data) {
+    i2c_slave_read_buffer(self->i2c_num, data, 128, 0);
     return 1;
 }
 
 int common_hal_i2cperipheral_i2c_peripheral_write_byte(i2cperipheral_i2c_peripheral_obj_t *self, uint8_t data) {
+    i2c_reset_tx_fifo(self->i2c_num);
+    i2c_slave_write_buffer(self->i2c_num, &data, 128, 0);
     return 1;
 }
 
