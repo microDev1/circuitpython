@@ -198,6 +198,9 @@ endif
 ifeq ($(CIRCUITPY_MEMORYMONITOR),1)
 SRC_PATTERNS += memorymonitor/%
 endif
+ifeq ($(CIRCUITPY_MESH),1)
+SRC_PATTERNS += mesh/%
+endif
 ifeq ($(CIRCUITPY_MICROCONTROLLER),1)
 SRC_PATTERNS += microcontroller/%
 endif
@@ -356,6 +359,7 @@ SRC_COMMON_HAL_ALL = \
 	gnss/SatelliteSystem.c \
 	i2cperipheral/I2CPeripheral.c \
 	i2cperipheral/__init__.c \
+	mesh/__init__.c \
 	microcontroller/Pin.c \
 	microcontroller/Processor.c \
 	microcontroller/__init__.c \

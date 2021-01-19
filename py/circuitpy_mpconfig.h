@@ -494,6 +494,13 @@ extern const struct _mp_obj_module_t memorymonitor_module;
 #define MEMORYMONITOR_ROOT_POINTERS
 #endif
 
+#if CIRCUITPY_MESH
+extern const struct _mp_obj_module_t mesh_module;
+#define MESH_MODULE           { MP_OBJ_NEW_QSTR(MP_QSTR_mesh), (mp_obj_t)&mesh_module },
+#else
+#define MESH_MODULE
+#endif
+
 #if CIRCUITPY_MICROCONTROLLER
 extern const struct _mp_obj_module_t microcontroller_module;
 #define MICROCONTROLLER_MODULE { MP_OBJ_NEW_QSTR(MP_QSTR_microcontroller), (mp_obj_t)&microcontroller_module },
@@ -836,6 +843,7 @@ extern const struct _mp_obj_module_t msgpack_module;
     MATH_MODULE \
     _EVE_MODULE \
     MEMORYMONITOR_MODULE \
+    MESH_MODULE \
     MICROCONTROLLER_MODULE \
     MSGPACK_MODULE \
     NEOPIXEL_WRITE_MODULE \
