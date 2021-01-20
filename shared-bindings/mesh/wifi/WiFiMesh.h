@@ -24,17 +24,24 @@
  * THE SOFTWARE.
  */
 
-#ifndef MICROPY_INCLUDED_ESP32S2_COMMON_HAL_MESH_NETWORK_H
-#define MICROPY_INCLUDED_ESP32S2_COMMON_HAL_MESH_NETWORK_H
+#ifndef MICROPY_INCLUDED_SHARED_BINDINGS_MESH_WIFI_WIFIMESH_H
+#define MICROPY_INCLUDED_SHARED_BINDINGS_MESH_WIFI_WIFIMESH_H
 
 #include "py/obj.h"
-#include "esp_mesh.h"
-#include "components/esp_wifi/include/esp_wifi_types.h"
+#include "py/runtime.h"
 
-typedef struct {
-    mp_obj_base_t base;
-    mesh_cfg_t config;
-    wifi_auth_mode_t authmode;
-} mesh_network_obj_t;
+#include "common-hal/mesh/wifi/WiFiMesh.h"
 
-#endif //MICROPY_INCLUDED_ESP32S2_COMMON_HAL_MESH_NETWORK_H
+extern const mp_obj_type_t mesh_wifi_wifimesh_type;
+
+// object constructor
+extern void common_hal_mesh_wifi_wifimesh_construct(mesh_wifi_wifimesh_obj_t *self);
+
+// mesh network config parameters
+extern mp_obj_t common_hal_mesh_wifi_wifimesh_get_ssid(mesh_wifi_wifimesh_obj_t *self);
+extern mp_obj_t common_hal_mesh_wifi_wifimesh_get_bssid(mesh_wifi_wifimesh_obj_t *self);
+// extern mp_obj_t common_hal_mesh_wifi_wifimesh_get_rssi(mesh_wifi_wifimesh_obj_t *self);
+extern mp_obj_t common_hal_mesh_wifi_wifimesh_get_channel(mesh_wifi_wifimesh_obj_t *self);
+extern mp_obj_t common_hal_mesh_wifi_wifimesh_get_authmode(mesh_wifi_wifimesh_obj_t *self);
+
+#endif  // MICROPY_INCLUDED_SHARED_BINDINGS_MESH_WIFI_WIFIMESH_H

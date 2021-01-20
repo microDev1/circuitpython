@@ -360,7 +360,9 @@ SRC_COMMON_HAL_ALL = \
 	i2cperipheral/I2CPeripheral.c \
 	i2cperipheral/__init__.c \
 	mesh/__init__.c \
-	mesh/Network.c \
+	mesh/ble/BLEMesh.c \
+	mesh/wifi/WiFiMesh.c \
+	mesh/zigbee/ZigBeeMesh.c \
 	microcontroller/Pin.c \
 	microcontroller/Processor.c \
 	microcontroller/__init__.c \
@@ -426,6 +428,7 @@ $(filter $(SRC_PATTERNS), \
 	digitalio/Pull.c \
 	fontio/Glyph.c \
 	math/__init__.c \
+	mesh/Topology.c \
 	microcontroller/ResetReason.c \
 	microcontroller/RunMode.c \
 	msgpack/__init__.c \

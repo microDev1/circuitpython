@@ -24,7 +24,17 @@
  * THE SOFTWARE.
  */
 
-#ifndef MICROPY_INCLUDED_SHARED_BINDINGS_MESH___INIT___H
-#define MICROPY_INCLUDED_SHARED_BINDINGS_MESH___INIT___H
+#ifndef MICROPY_INCLUDED_SHARED_BINDINGS_MESH_ZIGBEE_ZIGBEEMESH_H
+#define MICROPY_INCLUDED_SHARED_BINDINGS_MESH_ZIGBEE_ZIGBEEMESH_H
 
-#endif  // MICROPY_INCLUDED_SHARED_BINDINGS_MESH___INIT___H
+#include "py/obj.h"
+#include "py/runtime.h"
+
+#include "common-hal/mesh/zigbee/ZigBeeMesh.h"
+
+extern const mp_obj_type_t mesh_zigbee_zigbeemesh_type;
+
+// object constructor
+// extern void common_hal_mesh_zigbee_zigbeemesh_construct(mesh_zigbee_zigbeemesh_obj_t *self);
+
+#endif  // MICROPY_INCLUDED_SHARED_BINDINGS_MESH_ZIGBEE_ZIGBEEMESH_H

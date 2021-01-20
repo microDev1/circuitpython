@@ -24,17 +24,17 @@
  * THE SOFTWARE.
  */
 
-#ifndef MICROPY_INCLUDED_SHARED_BINDINGS_MESH_NETWORK_H
-#define MICROPY_INCLUDED_SHARED_BINDINGS_MESH_NETWORK_H
+#ifndef MICROPY_INCLUDED_SHARED_BINDINGS_MESH_BLE_BLEMESH_H
+#define MICROPY_INCLUDED_SHARED_BINDINGS_MESH_BLE_BLEMESH_H
 
-#include "common-hal/mesh/Network.h"
+#include "py/obj.h"
+#include "py/runtime.h"
 
-const mp_obj_type_t mesh_network_type;
+#include "common-hal/mesh/ble/BLEMesh.h"
 
-extern mp_obj_t common_hal_mesh_network_get_ssid(mesh_network_obj_t *self);
-extern mp_obj_t common_hal_mesh_network_get_bssid(mesh_network_obj_t *self);
-// extern mp_obj_t common_hal_mesh_network_get_rssi(mesh_network_obj_t *self);
-extern mp_obj_t common_hal_mesh_network_get_channel(mesh_network_obj_t *self);
-extern mp_obj_t common_hal_mesh_network_get_authmode(mesh_network_obj_t *self);
+extern const mp_obj_type_t mesh_ble_blemesh_type;
 
-#endif  // MICROPY_INCLUDED_SHARED_BINDINGS_MESH_NETWORK_H
+// object constructor
+// extern void common_hal_mesh_ble_blemesh_construct(mesh_ble_blemesh_obj_t *self);
+
+#endif  // MICROPY_INCLUDED_SHARED_BINDINGS_MESH_BLE_BLEMESH_H

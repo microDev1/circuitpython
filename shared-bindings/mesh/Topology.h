@@ -1,5 +1,5 @@
 /*
- * This file is part of the MicroPython project, http://micropython.org/
+ * This file is part of the Micro Python project, http://micropython.org/
  *
  * The MIT License (MIT)
  *
@@ -24,7 +24,24 @@
  * THE SOFTWARE.
  */
 
-#ifndef MICROPY_INCLUDED_SHARED_BINDINGS_MESH___INIT___H
-#define MICROPY_INCLUDED_SHARED_BINDINGS_MESH___INIT___H
+#ifndef MICROPY_INCLUDED_SHARED_BINDINGS_MESH_TOPOLOGY_H
+#define MICROPY_INCLUDED_SHARED_BINDINGS_MESH_TOPOLOGY_H
 
-#endif  // MICROPY_INCLUDED_SHARED_BINDINGS_MESH___INIT___H
+#include "py/obj.h"
+
+typedef enum {
+    RUNMODE_STAR,
+    RUNMODE_TREE,
+    RUNMODE_CHAIN
+} mesh_topology_t;
+
+extern const mp_obj_type_t mesh_topology_type;
+
+typedef struct {
+    mp_obj_base_t base;
+} mesh_topology_obj_t;
+extern const mesh_topology_obj_t mesh_topology_star_obj;
+extern const mesh_topology_obj_t mesh_topology_tree_obj;
+extern const mesh_topology_obj_t mesh_topology_chain_obj;
+
+#endif // MICROPY_INCLUDED_SHARED_BINDINGS_MESH_TOPOLOGY_H

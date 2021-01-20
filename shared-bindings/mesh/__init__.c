@@ -24,7 +24,15 @@
  * THE SOFTWARE.
  */
 
+#include "py/obj.h"
+#include "py/reload.h"
+#include "py/runtime.h"
+
 #include "shared-bindings/mesh/__init__.h"
+#include "shared-bindings/mesh/Topology.h"
+#include "shared-bindings/mesh/ble/BLEMesh.h"
+#include "shared-bindings/mesh/wifi/WiFiMesh.h"
+#include "shared-bindings/mesh/zigbee/ZigBeeMesh.h"
 
 //| """MESH Module
 //|
@@ -35,20 +43,53 @@
 //| ...
 //|
 
-// Called when mesh is imported.
-STATIC mp_obj_t mesh___init__(void) {
-    common_hal_mesh_init();
-    return mp_const_none;
-}
-STATIC MP_DEFINE_CONST_FUN_OBJ_0(mesh___init___obj, mesh___init__);
+STATIC const mp_map_elem_t mesh_ble_globals_table[] = {
+    { MP_ROM_QSTR(MP_QSTR___name__),    MP_ROM_QSTR(MP_QSTR_ble) },
+    { MP_ROM_QSTR(MP_QSTR_BLEMesh),     MP_OBJ_FROM_PTR(&mesh_ble_blemesh_type) },
+};
+
+STATIC MP_DEFINE_CONST_DICT(mesh_ble_globals, mesh_ble_globals_table);
+
+STATIC const mp_obj_module_t mesh_ble_module = {
+    .base = { &mp_type_module },
+    .globals = (mp_obj_dict_t*)&mesh_ble_globals,
+};
+
+STATIC const mp_map_elem_t mesh_wifi_globals_table[] = {
+    { MP_ROM_QSTR(MP_QSTR___name__),    MP_ROM_QSTR(MP_QSTR_wifi) },
+    { MP_ROM_QSTR(MP_QSTR_WiFiMesh),    MP_OBJ_FROM_PTR(&mesh_wifi_wifimesh_type) },
+};
+
+STATIC MP_DEFINE_CONST_DICT(mesh_wifi_globals, mesh_wifi_globals_table);
+
+STATIC const mp_obj_module_t mesh_wifi_module = {
+    .base = { &mp_type_module },
+    .globals = (mp_obj_dict_t*)&mesh_wifi_globals,
+};
+
+STATIC const mp_map_elem_t mesh_zigbee_globals_table[] = {
+    { MP_ROM_QSTR(MP_QSTR___name__),    MP_ROM_QSTR(MP_QSTR_zigbee) },
+    { MP_ROM_QSTR(MP_QSTR_ZigBeeMesh),  MP_OBJ_FROM_PTR(&mesh_zigbee_zigbeemesh_type) },
+};
+
+STATIC MP_DEFINE_CONST_DICT(mesh_zigbee_globals, mesh_zigbee_globals_table);
+
+STATIC const mp_obj_module_t mesh_zigbee_module = {
+    .base = { &mp_type_module },
+    .globals = (mp_obj_dict_t*)&mesh_zigbee_globals,
+};
 
 STATIC const mp_rom_map_elem_t mesh_module_globals_table[] = {
     // module name
     { MP_ROM_QSTR(MP_QSTR___name__),    MP_ROM_QSTR(MP_QSTR_mesh) },
-    // module initialixation
-    { MP_ROM_QSTR(MP_QSTR___init__),    MP_ROM_PTR(&mesh___init___obj) },
-    // module functions
 
+    // mesh network modules
+    { MP_ROM_QSTR(MP_QSTR_ble),         MP_OBJ_FROM_PTR(&mesh_ble_module) },
+    { MP_ROM_QSTR(MP_QSTR_wifi),        MP_OBJ_FROM_PTR(&mesh_wifi_module) },
+    { MP_ROM_QSTR(MP_QSTR_zigbee),      MP_OBJ_FROM_PTR(&mesh_zigbee_module) },
+
+    // mesh network properties
+    { MP_ROM_QSTR(MP_QSTR_Topology),    MP_ROM_PTR(&mesh_topology_type) },
 };
 STATIC MP_DEFINE_CONST_DICT(mesh_module_globals, mesh_module_globals_table);
 

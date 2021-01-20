@@ -24,7 +24,19 @@
  * THE SOFTWARE.
  */
 
-#ifndef MICROPY_INCLUDED_SHARED_BINDINGS_MESH___INIT___H
-#define MICROPY_INCLUDED_SHARED_BINDINGS_MESH___INIT___H
+#ifndef MICROPY_INCLUDED_COMMON_HAL_MESH_WIFI_WIFIMESH_H
+#define MICROPY_INCLUDED_COMMON_HAL_MESH_WIFI_WIFIMESH_H
 
-#endif  // MICROPY_INCLUDED_SHARED_BINDINGS_MESH___INIT___H
+#include "py/obj.h"
+#include "esp_mesh.h"
+#include "components/esp_wifi/include/esp_wifi_types.h"
+
+typedef struct {
+    mp_obj_base_t base;
+    mesh_cfg_t config;
+    wifi_auth_mode_t authmode;
+    esp_mesh_topology_t topology;
+    uint32_t max_layer;
+} mesh_wifi_wifimesh_obj_t;
+
+#endif  // MICROPY_INCLUDED_COMMON_HAL_MESH_WIFI_WIFIMESH_H
