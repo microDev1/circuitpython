@@ -24,11 +24,17 @@
  * THE SOFTWARE.
  */
 
-#ifndef MICROPY_INCLUDED_SHARED_BINDINGS_MESH___INIT___H
-#define MICROPY_INCLUDED_SHARED_BINDINGS_MESH___INIT___H
+#ifndef MICROPY_INCLUDED_SHARED_BINDINGS_MESH_NETWORK_H
+#define MICROPY_INCLUDED_SHARED_BINDINGS_MESH_NETWORK_H
 
-#include "py/runtime.h"
+#include "common-hal/mesh/Network.h"
 
-extern void common_hal_mesh_init(void);
+const mp_obj_type_t mesh_network_type;
 
-#endif  // MICROPY_INCLUDED_SHARED_BINDINGS_MESH___INIT___H
+extern mp_obj_t common_hal_mesh_network_get_ssid(mesh_network_obj_t *self);
+extern mp_obj_t common_hal_mesh_network_get_bssid(mesh_network_obj_t *self);
+// extern mp_obj_t common_hal_mesh_network_get_rssi(mesh_network_obj_t *self);
+extern mp_obj_t common_hal_mesh_network_get_channel(mesh_network_obj_t *self);
+extern mp_obj_t common_hal_mesh_network_get_authmode(mesh_network_obj_t *self);
+
+#endif  // MICROPY_INCLUDED_SHARED_BINDINGS_MESH_NETWORK_H

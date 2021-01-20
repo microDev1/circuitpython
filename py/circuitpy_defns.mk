@@ -360,6 +360,7 @@ SRC_COMMON_HAL_ALL = \
 	i2cperipheral/I2CPeripheral.c \
 	i2cperipheral/__init__.c \
 	mesh/__init__.c \
+	mesh/Network.c \
 	microcontroller/Pin.c \
 	microcontroller/Processor.c \
 	microcontroller/__init__.c \
