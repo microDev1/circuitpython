@@ -31,6 +31,8 @@
 
 #include <string.h>
 
+#include "nvs_flash.h"
+
 #include "esp_log.h"
 #include "esp_event.h"
 #include "esp_system.h"
@@ -392,7 +394,9 @@ static wifi_auth_mode_t get_authmode(const mp_obj_t authmode_obj) {
 
 void common_hal_mesh_wifi_wifimesh_construct(mesh_wifi_wifimesh_obj_t *self,
         const mp_buffer_info_t meshid, const mp_buffer_info_t password, const uint8_t channel,
-        const mp_obj_t authmode_obj, const mp_obj_t topology_obj, const uint16_t max_node) {
+        const mp_obj_t authmode_obj, const mp_obj_t topology_obj, const uint16_t node, const uint8_t connection) {
+    ESP_ERROR_CHECK(nvs_flash_init());
+
     //  tcpip initialization
     ESP_ERROR_CHECK(esp_netif_init());
 
@@ -418,7 +422,7 @@ void common_hal_mesh_wifi_wifimesh_construct(mesh_wifi_wifimesh_obj_t *self,
     ESP_ERROR_CHECK(esp_mesh_set_topology(self->topology));
 
     //  set mesh max layer according to the topology
-    self->max_layer = max_node;
+    self->max_layer = node;
     if (self->max_layer > 25) {
         if (self->topology == MESH_TOPO_TREE) {
             mp_raise_ValueError(translate("only 25 layers are supported in tree topology"));
@@ -457,15 +461,16 @@ void common_hal_mesh_wifi_wifimesh_construct(mesh_wifi_wifimesh_obj_t *self,
     self->authmode = get_authmode(authmode_obj);
     ESP_ERROR_CHECK(esp_mesh_set_ap_authmode(self->authmode));
     memcpy((uint8_t *) &self->config.mesh_ap.password, password.buf, password.len);
-    // self->config.mesh_ap.max_connection = max_connection;
+    self->config.mesh_ap.max_connection = connection;
 
-/*
+    const char * ssid = "Netgear";
+    const char * pass = "245F03C1MYWiFi12345";
+
     // router config
     self->config.router.ssid_len = strlen((const char *)ssid);
     memcpy((uint8_t *) &self->config.router.ssid, ssid, self->config.router.ssid_len);
     memcpy((uint8_t *) &self->config.router.password, pass,
            strlen((const char *)pass));
-*/
 
     // set mesh network config
     ESP_ERROR_CHECK(esp_mesh_set_config(&self->config));

@@ -25,6 +25,8 @@
  */
 
 #include "shared-bindings/mesh/wifi/WiFiMesh.h"
+#include "shared-bindings/mesh/Topology.h"
+#include "shared-bindings/wifi/AuthMode.h"
 
 #include "py/objproperty.h"
 
@@ -52,14 +54,15 @@
 //|
 STATIC mp_obj_t mesh_wifi_wifimesh_make_new(const mp_obj_type_t *type,
         mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
-    enum { ARG_meshid, ARG_password, ARG_channel, ARG_authmode, ARG_topology, ARG_max_node };
+    enum { ARG_meshid, ARG_password, ARG_channel, ARG_authmode, ARG_topology, ARG_node, ARG_connection };
     static const mp_arg_t allowed_args[] = {
-        { MP_QSTR_meshid,   MP_ARG_REQUIRED | MP_ARG_OBJ },
-        { MP_QSTR_password, MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL} },
-        { MP_QSTR_channel,  MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 1} },
-        { MP_QSTR_authmode, MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL} },
-        { MP_QSTR_topology, MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL} },
-        { MP_QSTR_max_node, MP_ARG_KW_ONLY | MP_ARG_INT, {.u_int = 0} },
+        { MP_QSTR_meshid,       MP_ARG_REQUIRED | MP_ARG_OBJ                            },
+        { MP_QSTR_authmode,     MP_ARG_KW_ONLY | MP_ARG_OBJ,    {.u_obj = MP_OBJ_NULL}  },
+        { MP_QSTR_password,     MP_ARG_KW_ONLY | MP_ARG_OBJ,    {.u_obj = MP_OBJ_NULL}  },
+        { MP_QSTR_topology,     MP_ARG_KW_ONLY | MP_ARG_OBJ,    {.u_obj = MP_OBJ_NULL}  },
+        { MP_QSTR_channel,      MP_ARG_KW_ONLY | MP_ARG_INT,    {.u_int = 1}            },
+        { MP_QSTR_connection,   MP_ARG_KW_ONLY | MP_ARG_INT,    {.u_int = 2}            },
+        { MP_QSTR_node,         MP_ARG_KW_ONLY | MP_ARG_INT,    {.u_int = 2}            },
     };
 
     mp_arg_val_t args[MP_ARRAY_SIZE(allowed_args)];
@@ -82,11 +85,35 @@ STATIC mp_obj_t mesh_wifi_wifimesh_make_new(const mp_obj_type_t *type,
         }
     }
 
+    if (args[ARG_authmode].u_obj != MP_OBJ_NULL) {
+        if (!MP_OBJ_IS_TYPE(args[ARG_authmode].u_obj, &wifi_authmode_type)) {
+            mp_raise_ValueError(translate("invalid authmode"));
+        }
+    }
+
+    if (args[ARG_topology].u_obj != MP_OBJ_NULL) {
+        if (!MP_OBJ_IS_TYPE(args[ARG_topology].u_obj, &mesh_topology_type)) {
+            mp_raise_ValueError(translate("invalid topology"));
+        }
+    }
+
+    if (args[ARG_channel].u_int <= 0) {
+        mp_raise_ValueError(translate("channel must be >= 1"));
+    }
+
+    if (args[ARG_connection].u_int <= 1) {
+        mp_raise_ValueError(translate("connection must be >= 2"));
+    }
+
+    if (args[ARG_node].u_int <= 1) {
+        mp_raise_ValueError(translate("node must be >= 2"));
+    }
+
     mesh_wifi_wifimesh_obj_t *self = m_new_obj(mesh_wifi_wifimesh_obj_t);
     self->base.type = &mesh_wifi_wifimesh_type;
 
     common_hal_mesh_wifi_wifimesh_construct(self, meshid, password, args[ARG_channel].u_int,
-            args[ARG_authmode].u_obj, args[ARG_topology].u_obj, args[ARG_max_node].u_int);
+            args[ARG_authmode].u_obj, args[ARG_topology].u_obj, args[ARG_node].u_int, args[ARG_connection].u_int);
 
     return MP_OBJ_FROM_PTR(self);
 }

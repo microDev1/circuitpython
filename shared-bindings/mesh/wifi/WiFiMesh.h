@@ -37,7 +37,7 @@ extern const mp_obj_type_t mesh_wifi_wifimesh_type;
 // object constructor
 extern void common_hal_mesh_wifi_wifimesh_construct(mesh_wifi_wifimesh_obj_t *self,
     const mp_buffer_info_t meshid, const mp_buffer_info_t password, const uint8_t channel,
-    const mp_obj_t authmode_obj, const mp_obj_t topology_obj, const uint16_t max_node);
+    const mp_obj_t authmode_obj, const mp_obj_t topology_obj, const uint16_t node, const uint8_t connection);
 
 // mesh network config parameters
 extern mp_obj_t common_hal_mesh_wifi_wifimesh_get_meshid(mesh_wifi_wifimesh_obj_t *self);
