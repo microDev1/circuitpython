@@ -2994,6 +2994,10 @@ msgstr ""
 msgid "invalid key"
 msgstr ""
 
+#: shared-bindings/mesh/wifi/WiFiMesh.c
+msgid "invalid meshid"
+msgstr ""
+
 #: py/compile.c
 msgid "invalid micropython decorator"
 msgstr ""
@@ -3057,6 +3061,10 @@ msgstr ""
 
 #: py/compile.c
 msgid "label redefined"
+msgstr ""
+
+#: ports/esp32s2/common-hal/mesh/wifi/WiFiMesh.c
+msgid "layers should less than 1000"
 msgstr ""
 
 #: py/stream.c
@@ -3356,6 +3364,10 @@ msgstr ""
 msgid "offset out of bounds"
 msgstr ""
 
+#: ports/esp32s2/common-hal/mesh/wifi/WiFiMesh.c
+msgid "only 25 layers are supported in tree topology"
+msgstr ""
+
 #: ports/nrf/common-hal/audiobusio/PDMIn.c
 msgid "only bit_depth=16 is supported"
 msgstr ""
@@ -3430,6 +3442,10 @@ msgstr ""
 
 #: py/emitinlinethumb.c
 msgid "parameters must be registers in sequence r0 to r3"
+msgstr ""
+
+#: shared-bindings/mesh/wifi/WiFiMesh.c
+msgid "password must be between 8 and 63 characters"
 msgstr ""
 
 #: shared-bindings/displayio/Bitmap.c
@@ -3624,6 +3640,10 @@ msgstr ""
 
 #: shared-bindings/displayio/Bitmap.c
 msgid "source palette too large"
+msgstr ""
+
+#: ports/esp32s2/common-hal/mesh/wifi/WiFiMesh.c
+msgid "star topology is not supported"
 msgstr ""
 
 #: py/objstr.c

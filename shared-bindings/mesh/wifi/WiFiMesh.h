@@ -35,12 +35,12 @@
 extern const mp_obj_type_t mesh_wifi_wifimesh_type;
 
 // object constructor
-extern void common_hal_mesh_wifi_wifimesh_construct(mesh_wifi_wifimesh_obj_t *self);
+extern void common_hal_mesh_wifi_wifimesh_construct(mesh_wifi_wifimesh_obj_t *self,
+    const mp_buffer_info_t meshid, const mp_buffer_info_t password, const uint8_t channel,
+    const mp_obj_t authmode_obj, const mp_obj_t topology_obj, const uint16_t max_node);
 
 // mesh network config parameters
-extern mp_obj_t common_hal_mesh_wifi_wifimesh_get_ssid(mesh_wifi_wifimesh_obj_t *self);
-extern mp_obj_t common_hal_mesh_wifi_wifimesh_get_bssid(mesh_wifi_wifimesh_obj_t *self);
-// extern mp_obj_t common_hal_mesh_wifi_wifimesh_get_rssi(mesh_wifi_wifimesh_obj_t *self);
+extern mp_obj_t common_hal_mesh_wifi_wifimesh_get_meshid(mesh_wifi_wifimesh_obj_t *self);
 extern mp_obj_t common_hal_mesh_wifi_wifimesh_get_channel(mesh_wifi_wifimesh_obj_t *self);
 extern mp_obj_t common_hal_mesh_wifi_wifimesh_get_authmode(mesh_wifi_wifimesh_obj_t *self);
 

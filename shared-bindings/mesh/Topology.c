@@ -64,22 +64,22 @@ const mesh_topology_obj_t mesh_topology_chain_obj = {
 };
 
 STATIC const mp_rom_map_elem_t mesh_topology_locals_dict_table[] = {
-    {MP_ROM_QSTR(MP_QSTR_STAR),     MP_ROM_PTR(&mesh_topology_star_obj)},
-    {MP_ROM_QSTR(MP_QSTR_TREE),  MP_ROM_PTR(&mesh_topology_tree_obj)},
-    {MP_ROM_QSTR(MP_QSTR_CHAIN), MP_ROM_PTR(&mesh_topology_chain_obj)},
+    { MP_ROM_QSTR(MP_QSTR_STAR),     MP_ROM_PTR(&mesh_topology_star_obj) },
+    { MP_ROM_QSTR(MP_QSTR_TREE),     MP_ROM_PTR(&mesh_topology_tree_obj) },
+    { MP_ROM_QSTR(MP_QSTR_CHAIN),    MP_ROM_PTR(&mesh_topology_chain_obj) },
 };
 STATIC MP_DEFINE_CONST_DICT(mesh_topology_locals_dict, mesh_topology_locals_dict_table);
 
 STATIC void mesh_topology_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind) {
-    qstr runmode = MP_QSTR_STAR;
+    qstr topology = MP_QSTR_STAR;
     if (MP_OBJ_TO_PTR(self_in) == MP_ROM_PTR(&mesh_topology_tree_obj)) {
-        runmode = MP_QSTR_TREE;
+        topology = MP_QSTR_TREE;
     } else if (MP_OBJ_TO_PTR(self_in) ==
                MP_ROM_PTR(&mesh_topology_chain_obj)) {
-        runmode = MP_QSTR_CHAIN;
+        topology = MP_QSTR_CHAIN;
     }
     mp_printf(print, "%q.%q.%q", MP_QSTR_mesh, MP_QSTR_Topology,
-              runmode);
+              topology);
 }
 
 const mp_obj_type_t mesh_topology_type = {

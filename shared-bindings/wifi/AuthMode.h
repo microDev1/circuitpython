@@ -24,24 +24,32 @@
  * THE SOFTWARE.
  */
 
-#ifndef MICROPY_INCLUDED_SHARED_BINDINGS_MESH_TOPOLOGY_H
-#define MICROPY_INCLUDED_SHARED_BINDINGS_MESH_TOPOLOGY_H
+#ifndef MICROPY_INCLUDED_SHARED_BINDINGS_WIFI_AUTHMODE_H
+#define MICROPY_INCLUDED_SHARED_BINDINGS_WIFI_AUTHMODE_H
 
 #include "py/obj.h"
 
 typedef enum {
-    MESH_STAR,
-    MESH_TREE,
-    MESH_CHAIN
-} mesh_topology_t;
+    AUTH_OPEN,
+    AUTH_WEP,
+    AUTH_WPA,
+    AUTH_WPA2,
+    AUTH_WPA3,
+    AUTH_PSK,
+    AUTH_ENTERPRISE
+} wifi_authmode_t;
 
-extern const mp_obj_type_t mesh_topology_type;
+extern const mp_obj_type_t wifi_authmode_type;
 
 typedef struct {
     mp_obj_base_t base;
-} mesh_topology_obj_t;
-extern const mesh_topology_obj_t mesh_topology_star_obj;
-extern const mesh_topology_obj_t mesh_topology_tree_obj;
-extern const mesh_topology_obj_t mesh_topology_chain_obj;
+} wifi_authmode_obj_t;
+extern const wifi_authmode_obj_t wifi_authmode_open_obj;
+extern const wifi_authmode_obj_t wifi_authmode_wep_obj;
+extern const wifi_authmode_obj_t wifi_authmode_wpa_obj;
+extern const wifi_authmode_obj_t wifi_authmode_wpa2_obj;
+extern const wifi_authmode_obj_t wifi_authmode_wpa3_obj;
+extern const wifi_authmode_obj_t wifi_authmode_psk_obj;
+extern const wifi_authmode_obj_t wifi_authmode_enterprise_obj;
 
-#endif // MICROPY_INCLUDED_SHARED_BINDINGS_MESH_TOPOLOGY_H
+#endif // MICROPY_INCLUDED_SHARED_BINDINGS_WIFI_AUTHMODE_H
