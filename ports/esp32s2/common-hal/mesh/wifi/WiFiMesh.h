@@ -39,4 +39,6 @@ typedef struct {
     uint32_t max_layer;
 } mesh_wifi_wifimesh_obj_t;
 
+extern void mesh_wifi_wifimesh_reset(void);
+
 #endif  // MICROPY_INCLUDED_COMMON_HAL_MESH_WIFI_WIFIMESH_H

@@ -56,7 +56,13 @@ static mesh_addr_t mesh_parent_addr;
 static int mesh_layer = -1;
 static esp_netif_t *netif_sta = NULL;
 
-void mesh_reset(void) {}
+void mesh_wifi_wifimesh_reset(void) {
+    esp_mesh_deinit();
+    esp_wifi_deinit();
+    esp_event_loop_delete_default();
+    esp_netif_deinit();
+    nvs_flash_deinit();
+}
 
 static void mesh_connected_indicator(int layer) {}
 static void mesh_disconnected_indicator(void) {}
@@ -395,6 +401,7 @@ static wifi_auth_mode_t get_authmode(const mp_obj_t authmode_obj) {
 void common_hal_mesh_wifi_wifimesh_construct(mesh_wifi_wifimesh_obj_t *self,
         const mp_buffer_info_t meshid, const mp_buffer_info_t password, const uint8_t channel,
         const mp_obj_t authmode_obj, const mp_obj_t topology_obj, const uint16_t node, const uint8_t connection) {
+    //  nvs initialization
     ESP_ERROR_CHECK(nvs_flash_init());
 
     //  tcpip initialization
@@ -531,4 +538,23 @@ mp_obj_t common_hal_mesh_wifi_wifimesh_get_authmode(mesh_wifi_wifimesh_obj_t *se
             break;
     }
     return mp_obj_new_str(authmode, strlen(authmode));
+}
+
+mp_obj_t common_hal_mesh_wifi_wifimesh_get_topology(mesh_wifi_wifimesh_obj_t *self) {
+    switch (self->topology) {
+        case MESH_TOPO_TREE:
+            return MP_OBJ_FROM_PTR(&mesh_topology_tree_obj);
+        case MESH_TOPO_CHAIN:
+            return MP_OBJ_FROM_PTR(&mesh_topology_chain_obj);
+        default:
+            return mp_const_none;
+    }
+}
+
+mp_obj_t common_hal_mesh_wifi_wifimesh_get_connection(mesh_wifi_wifimesh_obj_t *self) {
+    return mp_obj_new_int(self->config.mesh_ap.max_connection);
+}
+
+mp_obj_t common_hal_mesh_wifi_wifimesh_get_node(mesh_wifi_wifimesh_obj_t *self) {
+    return mp_obj_new_int(self->max_layer);
 }

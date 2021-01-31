@@ -43,5 +43,9 @@ extern void common_hal_mesh_wifi_wifimesh_construct(mesh_wifi_wifimesh_obj_t *se
 extern mp_obj_t common_hal_mesh_wifi_wifimesh_get_meshid(mesh_wifi_wifimesh_obj_t *self);
 extern mp_obj_t common_hal_mesh_wifi_wifimesh_get_channel(mesh_wifi_wifimesh_obj_t *self);
 extern mp_obj_t common_hal_mesh_wifi_wifimesh_get_authmode(mesh_wifi_wifimesh_obj_t *self);
+extern mp_obj_t common_hal_mesh_wifi_wifimesh_get_topology(mesh_wifi_wifimesh_obj_t *self);
+extern mp_obj_t common_hal_mesh_wifi_wifimesh_get_connection(mesh_wifi_wifimesh_obj_t *self);
+extern mp_obj_t common_hal_mesh_wifi_wifimesh_get_node(mesh_wifi_wifimesh_obj_t *self);
+
 
 #endif  // MICROPY_INCLUDED_SHARED_BINDINGS_MESH_WIFI_WIFIMESH_H

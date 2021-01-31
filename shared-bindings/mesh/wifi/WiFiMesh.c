@@ -54,7 +54,7 @@
 //|
 STATIC mp_obj_t mesh_wifi_wifimesh_make_new(const mp_obj_type_t *type,
         mp_uint_t n_args, const mp_obj_t *pos_args, mp_map_t *kw_args) {
-    enum { ARG_meshid, ARG_password, ARG_channel, ARG_authmode, ARG_topology, ARG_node, ARG_connection };
+    enum { ARG_meshid, ARG_authmode, ARG_password, ARG_topology, ARG_channel, ARG_connection, ARG_node };
     static const mp_arg_t allowed_args[] = {
         { MP_QSTR_meshid,       MP_ARG_REQUIRED | MP_ARG_OBJ                            },
         { MP_QSTR_authmode,     MP_ARG_KW_ONLY | MP_ARG_OBJ,    {.u_obj = MP_OBJ_NULL}  },
@@ -166,10 +166,61 @@ const mp_obj_property_t mesh_wifi_wifimesh_authmode_obj = {
                (mp_obj_t)&mp_const_none_obj },
 };
 
+//|     topology: str
+//|     """Topology of the network"""
+//|
+STATIC mp_obj_t mesh_wifi_wifimesh_get_topology(mp_obj_t self) {
+    return common_hal_mesh_wifi_wifimesh_get_topology(self);
+
+}
+MP_DEFINE_CONST_FUN_OBJ_1(mesh_wifi_wifimesh_get_topology_obj, mesh_wifi_wifimesh_get_topology);
+
+const mp_obj_property_t mesh_wifi_wifimesh_topology_obj = {
+    .base.type = &mp_type_property,
+    .proxy = { (mp_obj_t)&mesh_wifi_wifimesh_get_topology_obj,
+               (mp_obj_t)&mp_const_none_obj,
+               (mp_obj_t)&mp_const_none_obj },
+};
+
+//|     node: int
+//|     """Max nodes in network"""
+//|
+STATIC mp_obj_t mesh_wifi_wifimesh_get_node(mp_obj_t self) {
+    return common_hal_mesh_wifi_wifimesh_get_node(self);
+
+}
+MP_DEFINE_CONST_FUN_OBJ_1(mesh_wifi_wifimesh_get_node_obj, mesh_wifi_wifimesh_get_node);
+
+const mp_obj_property_t mesh_wifi_wifimesh_node_obj = {
+    .base.type = &mp_type_property,
+    .proxy = { (mp_obj_t)&mesh_wifi_wifimesh_get_node_obj,
+               (mp_obj_t)&mp_const_none_obj,
+               (mp_obj_t)&mp_const_none_obj },
+};
+
+//|     connection: int
+//|     """Max connections per node"""
+//|
+STATIC mp_obj_t mesh_wifi_wifimesh_get_connection(mp_obj_t self) {
+    return common_hal_mesh_wifi_wifimesh_get_connection(self);
+
+}
+MP_DEFINE_CONST_FUN_OBJ_1(mesh_wifi_wifimesh_get_connection_obj, mesh_wifi_wifimesh_get_connection);
+
+const mp_obj_property_t mesh_wifi_wifimesh_connection_obj = {
+    .base.type = &mp_type_property,
+    .proxy = { (mp_obj_t)&mesh_wifi_wifimesh_get_connection_obj,
+               (mp_obj_t)&mp_const_none_obj,
+               (mp_obj_t)&mp_const_none_obj },
+};
+
 STATIC const mp_rom_map_elem_t mesh_wifi_wifimesh_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_meshid),      MP_ROM_PTR(&mesh_wifi_wifimesh_meshid_obj) },
-    { MP_ROM_QSTR(MP_QSTR_channel),     MP_ROM_PTR(&mesh_wifi_wifimesh_channel_obj) },
     { MP_ROM_QSTR(MP_QSTR_authmode),    MP_ROM_PTR(&mesh_wifi_wifimesh_authmode_obj) },
+    { MP_ROM_QSTR(MP_QSTR_channel),     MP_ROM_PTR(&mesh_wifi_wifimesh_channel_obj) },
+    { MP_ROM_QSTR(MP_QSTR_connection),  MP_ROM_PTR(&mesh_wifi_wifimesh_connection_obj) },
+    { MP_ROM_QSTR(MP_QSTR_node),        MP_ROM_PTR(&mesh_wifi_wifimesh_node_obj) },
+    { MP_ROM_QSTR(MP_QSTR_topology),    MP_ROM_PTR(&mesh_wifi_wifimesh_topology_obj) },
 };
 STATIC MP_DEFINE_CONST_DICT(mesh_wifi_wifimesh_locals_dict, mesh_wifi_wifimesh_locals_dict_table);
 

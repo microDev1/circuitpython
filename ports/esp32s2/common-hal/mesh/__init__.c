@@ -24,5 +24,13 @@
  * THE SOFTWARE.
  */
 
-#include "common-hal/mesh/__init__.h"
 #include "shared-bindings/mesh/__init__.h"
+
+#include "common-hal/mesh/__init__.h"
+#include "common-hal/mesh/ble/BLEMesh.h"
+#include "common-hal/mesh/wifi/WiFiMesh.h"
+#include "common-hal/mesh/zigbee/ZigBeeMesh.h"
+
+void mesh_reset(void) {
+    mesh_wifi_wifimesh_reset();
+}

@@ -42,6 +42,7 @@
 #include "common-hal/busio/SPI.h"
 #include "common-hal/busio/UART.h"
 #include "common-hal/dualbank/__init__.h"
+#include "common-hal/mesh/__init__.h"
 #include "common-hal/ps2io/Ps2.h"
 #include "common-hal/pulseio/PulseIn.h"
 #include "common-hal/pwmio/PWMOut.h"
@@ -163,25 +164,8 @@ void reset_port(void) {
     analogout_reset();
 #endif
 
-#if CIRCUITPY_DUALBANK
-    dualbank_reset();
-#endif
-
-#if CIRCUITPY_PS2IO
-    ps2_reset();
-#endif
-
 #if CIRCUITPY_AUDIOBUSIO
     i2s_reset();
-#endif
-
-#if CIRCUITPY_PULSEIO
-    esp32s2_peripherals_rmt_reset();
-    pulsein_reset();
-#endif
-
-#if CIRCUITPY_PWMIO
-    pwmout_reset();
 #endif
 
 #if CIRCUITPY_BUSIO
@@ -194,8 +178,20 @@ void reset_port(void) {
     peripherals_pcnt_reset();
 #endif
 
+#if CIRCUITPY_DUALBANK
+    dualbank_reset();
+#endif
+
 #if CIRCUITPY_FREQUENCYIO
     peripherals_timer_reset();
+#endif
+
+#if CIRCUITPY_MESH
+    mesh_reset();
+#endif
+
+#if CIRCUITPY_PS2IO
+    ps2_reset();
 #endif
 
 #if CIRCUITPY_PULSEIO
