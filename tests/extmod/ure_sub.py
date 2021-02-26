@@ -4,13 +4,13 @@ except ImportError:
     try:
         import re
     except ImportError:
-        print('SKIP')
+        print("SKIP")
         raise SystemExit
 
 try:
     re.sub
 except AttributeError:
-    print('SKIP')
+    print("SKIP")
     raise SystemExit
 
 
@@ -34,28 +34,40 @@ print(
 )
 
 print(
-    re.compile(
-         '(calzino) (blu|bianco|verde) e (scarpa) (blu|bianco|verde)'
-    ).sub(
-        r'\g<1> colore \2 con \g<3> colore \4? ...',
-        'calzino blu e scarpa verde'
+    re.compile("(calzino) (blu|bianco|verde) e (scarpa) (blu|bianco|verde)").sub(
+        r"\g<1> colore \2 con \g<3> colore \4? ...", "calzino blu e scarpa verde"
     )
 )
 
+# \g immediately followed by another \g
+print(re.sub("(abc)", r"\g<1>\g<1>", "abc"))
+
 # no matches at all
-print(re.sub('a', 'b', 'c'))
+print(re.sub("a", "b", "c"))
 
 # with maximum substitution count specified
-print(re.sub('a', 'b', '1a2a3a', 2))
+print(re.sub("a", "b", "1a2a3a", 2))
 
 # invalid group
 try:
-    re.sub('(a)', 'b\\2', 'a')
+    re.sub("(a)", "b\\2", "a")
 except:
-    print('invalid group')
+    print("invalid group")
 
 # invalid group with very large number (to test overflow in uPy)
 try:
-    re.sub('(a)', 'b\\199999999999999999999999999999999999999', 'a')
+    re.sub("(a)", "b\\199999999999999999999999999999999999999", "a")
 except:
-    print('invalid group')
+    print("invalid group")
+
+# Module function takes str/bytes/re.
+print(re.sub("a", "a", "a"))
+print(re.sub(b".", b"a", b"a"))
+print(re.sub(re.compile("a"), "a", "a"))
+try:
+    re.sub(123, "a", "a")
+except TypeError:
+    print("TypeError")
+
+# Include \ in the sub replacement
+print(re.sub("b", "\\\\b", "abc"))

@@ -26,9 +26,14 @@
 #ifndef MICROPY_INCLUDED_PY_RINGBUF_H
 #define MICROPY_INCLUDED_PY_RINGBUF_H
 
+#include <stddef.h>
+#include <stdint.h>
+
 #include "py/gc.h"
 
-#include <stdint.h>
+#ifdef _MSC_VER
+#include "py/mpconfig.h" // For inline.
+#endif
 
 typedef struct _ringbuf_t {
     uint8_t *buf;
@@ -46,9 +51,14 @@ typedef struct _ringbuf_t {
 
 bool ringbuf_alloc(ringbuf_t *r, size_t capacity, bool long_lived);
 void ringbuf_free(ringbuf_t *r);
+size_t ringbuf_avail(ringbuf_t *r);
 size_t ringbuf_capacity(ringbuf_t *r);
 int ringbuf_get(ringbuf_t *r);
+int ringbuf_get16(ringbuf_t *r);
 int ringbuf_put(ringbuf_t *r, uint8_t v);
+int ringbuf_put16(ringbuf_t *r, uint16_t v);
+int ringbuf_peek(ringbuf_t *r);
+int ringbuf_peek16(ringbuf_t *r);
 void ringbuf_clear(ringbuf_t *r);
 size_t ringbuf_num_empty(ringbuf_t *r);
 size_t ringbuf_num_filled(ringbuf_t *r);

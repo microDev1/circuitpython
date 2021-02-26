@@ -31,21 +31,10 @@
 #include "py/runtime.h"
 #include "py/runtime0.h"
 
-#include "supervisor/shared/translate.h"
-
 /******************************************************************************/
 /* slice object                                                               */
 
 #if MICROPY_PY_BUILTINS_SLICE
-
-// TODO: This implements only variant of slice with 2 integer args only.
-// CPython supports 3rd arg (step), plus args can be arbitrary Python objects.
-typedef struct _mp_obj_slice_t {
-    mp_obj_base_t base;
-    mp_obj_t start;
-    mp_obj_t stop;
-    mp_obj_t step;
-} mp_obj_slice_t;
 
 STATIC void slice_print(const mp_print_t *print, mp_obj_t o_in, mp_print_kind_t kind) {
     (void)kind;
@@ -58,6 +47,22 @@ STATIC void slice_print(const mp_print_t *print, mp_obj_t o_in, mp_print_kind_t 
     mp_obj_print_helper(print, o->step, PRINT_REPR);
     mp_print_str(print, ")");
 }
+
+#if MICROPY_PY_BUILTINS_SLICE_INDICES
+STATIC mp_obj_t slice_indices(mp_obj_t self_in, mp_obj_t length_obj) {
+    mp_int_t length = mp_obj_int_get_checked(length_obj);
+    mp_bound_slice_t bound_indices;
+    mp_obj_slice_indices(self_in, length, &bound_indices);
+
+    mp_obj_t results[3] = {
+        MP_OBJ_NEW_SMALL_INT(bound_indices.start),
+        MP_OBJ_NEW_SMALL_INT(bound_indices.stop),
+        MP_OBJ_NEW_SMALL_INT(bound_indices.step),
+    };
+    return mp_obj_new_tuple(3, results);
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_2(slice_indices_obj, slice_indices);
+#endif
 
 #if MICROPY_PY_BUILTINS_SLICE_ATTRS
 STATIC mp_obj_t slice_indices(mp_obj_t self_in, mp_obj_t length_obj) {
@@ -118,6 +123,7 @@ STATIC void slice_attr(mp_obj_t self_in, qstr attr, mp_obj_t *dest) {
         return;
     }
     mp_obj_slice_t *self = MP_OBJ_TO_PTR(self_in);
+
     if (attr == MP_QSTR_start) {
         dest[0] = self->start;
     } else if (attr == MP_QSTR_stop) {
@@ -133,14 +139,23 @@ STATIC mp_obj_t slice_make_new(const mp_obj_type_t *type,
         size_t n_args, const mp_obj_t *args, mp_map_t *kw_args);
 #endif
 
+#if MICROPY_PY_BUILTINS_SLICE_INDICES && !MICROPY_PY_BUILTINS_SLICE_ATTRS
+STATIC const mp_rom_map_elem_t slice_locals_dict_table[] = {
+    { MP_ROM_QSTR(MP_QSTR_indices), MP_ROM_PTR(&slice_indices_obj) },
+};
+STATIC MP_DEFINE_CONST_DICT(slice_locals_dict, slice_locals_dict_table);
+#endif
+
 const mp_obj_type_t mp_type_slice = {
     { &mp_type_type },
     .name = MP_QSTR_slice,
     .print = slice_print,
-#if MICROPY_PY_BUILTINS_SLICE_ATTRS
+    #if MICROPY_PY_BUILTINS_SLICE_ATTRS
     .make_new = slice_make_new,
     .attr = slice_attr,
-#endif
+    #elif MICROPY_PY_BUILTINS_SLICE_INDICES
+    .locals_dict = (mp_obj_dict_t *)&slice_locals_dict,
+    #endif
 };
 
 mp_obj_t mp_obj_new_slice(mp_obj_t ostart, mp_obj_t ostop, mp_obj_t ostep) {

@@ -64,7 +64,7 @@ STATIC mp_obj_t enumerate_make_new(const mp_obj_type_t *type, size_t n_args, con
     o->base.type = type;
     o->iter = mp_getiter(args[0], NULL);
     o->cur = n_args > 1 ? mp_obj_get_int(args[1]) : 0;
-#endif
+    #endif
 
     return MP_OBJ_FROM_PTR(o);
 }
@@ -78,7 +78,7 @@ const mp_obj_type_t mp_type_enumerate = {
 };
 
 STATIC mp_obj_t enumerate_iternext(mp_obj_t self_in) {
-    assert(MP_OBJ_IS_TYPE(self_in, &mp_type_enumerate));
+    assert(mp_obj_is_type(self_in, &mp_type_enumerate));
     mp_obj_enumerate_t *self = MP_OBJ_TO_PTR(self_in);
     mp_obj_t next = mp_iternext(self->iter);
     if (next == MP_OBJ_STOP_ITERATION) {

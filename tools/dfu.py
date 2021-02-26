@@ -9,18 +9,25 @@
 # Distributed under Gnu LGPL 3.0
 # see http://www.gnu.org/licenses/lgpl-3.0.txt
 
-import sys,struct,zlib,os
+import sys, struct, zlib, os
 from optparse import OptionParser
 
-DEFAULT_DEVICE="0x0483:0xdf11"
+DEFAULT_DEVICE = "0x0483:0xdf11"
 
-def named(tuple,names):
-  return dict(zip(names.split(),tuple))
-def consume(fmt,data,names):
-  n = struct.calcsize(fmt)
-  return named(struct.unpack(fmt,data[:n]),names),data[n:]
+
+def named(tuple, names):
+    return dict(zip(names.split(), tuple))
+
+
+def consume(fmt, data, names):
+    n = struct.calcsize(fmt)
+    return named(struct.unpack(fmt, data[:n]), names), data[n:]
+
+
 def cstring(string):
-  return string.split('\0',1)[0]
+    return string.split("\0", 1)[0]
+
+
 def compute_crc(data):
   return 0xFFFFFFFF & -zlib.crc32(data) -1
 

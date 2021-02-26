@@ -13,12 +13,11 @@ try:
     m = re.match(".", "a")
     m.span
 except AttributeError:
-    print('SKIP')
+    print("SKIP")
     raise SystemExit
 
-
 def print_spans(match):
-    print('----')
+    print("----")
     try:
         i = 0
         while True:
@@ -27,14 +26,14 @@ def print_spans(match):
     except IndexError:
         pass
 
-m = re.match(r'(([0-9]*)([a-z]*)[0-9]*)','1234hello567')
+m = re.match(r"(([0-9]*)([a-z]*)[0-9]*)", "1234hello567")
 print_spans(m)
 
-m = re.match(r'([0-9]*)(([a-z]*)([0-9]*))','1234hello567')
+m = re.match(r"([0-9]*)(([a-z]*)([0-9]*))", "1234hello567")
 print_spans(m)
 
 # optional span that matches
-print_spans(re.match(r'(a)?b(c)', 'abc'))
+print_spans(re.match(r"(a)?b(c)", "abc"))
 
 # optional span that doesn't match
-print_spans(re.match(r'(a)?b(c)', 'bc'))
+print_spans(re.match(r"(a)?b(c)", "bc"))

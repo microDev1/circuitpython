@@ -38,8 +38,6 @@ sys.path.insert(0, os.path.abspath('.'))
 
 import shared_bindings_matrix
 
-master_doc = 'docs/index'
-
 # Grab the JSON values to use while building the module support matrix
 # in 'shared-bindings/index.rst'
 
@@ -100,7 +98,7 @@ redirects_file = 'docs/redirects.txt'
 #source_encoding = 'utf-8-sig'
 
 # The master toctree document.
-#master_doc = 'index'
+master_doc = 'docs/index'
 
 # Get current date (execution) for copyright year
 current_date = time.localtime()

@@ -1,4 +1,4 @@
-@micropython.asm_thumb      # r0 = (int)(r0*r1/r2)
+@micropython.asm_thumb  # r0 = (int)(r0*r1/r2)
 def muldiv(r0, r1, r2):
     vmov(s0, r0)
     vcvt_f32_s32(s0, s0)

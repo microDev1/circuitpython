@@ -92,7 +92,7 @@ STATIC mp_uint_t emit_inline_xtensa_count_params(emit_inline_asm_t *emit, mp_uin
             return 0;
         }
         const char *p = qstr_str(MP_PARSE_NODE_LEAF_ARG(pn_params[i]));
-        if (!(strlen(p) == 2 && p[0] == 'a' && p[1] == '2' + i)) {
+        if (!(strlen(p) == 2 && p[0] == 'a' && (mp_uint_t)p[1] == '2' + i)) {
             emit_inline_xtensa_error_msg(emit, translate("parameters must be registers in sequence a2 to a5"));
             return 0;
         }
@@ -115,7 +115,9 @@ STATIC bool emit_inline_xtensa_label(emit_inline_asm_t *emit, mp_uint_t label_nu
     return true;
 }
 
-typedef struct _reg_name_t { byte reg; byte name[3]; } reg_name_t;
+typedef struct _reg_name_t { byte reg;
+                             byte name[3];
+} reg_name_t;
 STATIC const reg_name_t reg_name_table[] = {
     {0, "a0\0"},
     {1, "a1\0"},
@@ -242,7 +244,7 @@ STATIC const opcode_table_3arg_t opcode_table_3arg[] = {
 
 STATIC void emit_inline_xtensa_op(emit_inline_asm_t *emit, qstr op, mp_uint_t n_args, mp_parse_node_t *pn_args) {
     size_t op_len;
-    const char *op_str = (const char*)qstr_data(op, &op_len);
+    const char *op_str = (const char *)qstr_data(op, &op_len);
 
     if (n_args == 0) {
         if (op == MP_QSTR_ret_n) {
@@ -335,6 +337,11 @@ branch_not_in_range:
 }
 
 const emit_inline_asm_method_table_t emit_inline_xtensa_method_table = {
+    #if MICROPY_DYNAMIC_COMPILER
+    emit_inline_xtensa_new,
+    emit_inline_xtensa_free,
+    #endif
+
     emit_inline_xtensa_start_pass,
     emit_inline_xtensa_end_pass,
     emit_inline_xtensa_count_params,

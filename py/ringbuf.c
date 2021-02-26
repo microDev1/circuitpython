@@ -3,7 +3,7 @@
  *
  * The MIT License (MIT)
  *
- * Copyright (c) 2016 Paul Sokolovsky
+ * Copyright (c) 2019 Jim Mussared
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,6 +43,10 @@ void ringbuf_free(ringbuf_t *r) {
     ringbuf_clear(r);
 }
 
+size_t ringbuf_avail(ringbuf_t *r) {
+    return (r->size + r->iput - r->iget) % r->size;
+}
+
 size_t ringbuf_capacity(ringbuf_t *r) {
     return r->size - 1;
 }
@@ -55,6 +59,18 @@ int ringbuf_get(ringbuf_t *r) {
     uint8_t v = r->buf[r->iget++];
     if (r->iget >= r->size) {
         r->iget = 0;
+    }
+    return v;
+}
+
+int ringbuf_get16(ringbuf_t *r) {
+    int v = ringbuf_peek16(r);
+    if (v == -1) {
+        return v;
+    }
+    r->iget += 2;
+    if (r->iget >= r->size) {
+        r->iget -= r->size;
     }
     return v;
 }
@@ -73,6 +89,48 @@ int ringbuf_put(ringbuf_t *r, uint8_t v) {
     return 0;
 }
 
+int ringbuf_put16(ringbuf_t *r, uint16_t v) {
+    uint32_t iput_a = r->iput + 1;
+    if (iput_a == r->size) {
+        iput_a = 0;
+    }
+    if (iput_a == r->iget) {
+        return -1;
+    }
+    uint32_t iput_b = iput_a + 1;
+    if (iput_b == r->size) {
+        iput_b = 0;
+    }
+    if (iput_b == r->iget) {
+        return -1;
+    }
+    r->buf[r->iput] = (v >> 8) & 0xff;
+    r->buf[iput_a] = v & 0xff;
+    r->iput = iput_b;
+    return 0;
+}
+
+int ringbuf_peek(ringbuf_t *r) {
+    if (r->iget == r->iput) {
+        return -1;
+    }
+    return r->buf[r->iget];
+}
+
+int ringbuf_peek16(ringbuf_t *r) {
+    if (r->iget == r->iput) {
+        return -1;
+    }
+    uint32_t iget_a = r->iget + 1;
+    if (iget_a == r->size) {
+        iget_a = 0;
+    }
+    if (iget_a == r->iput) {
+        return -1;
+    }
+    return (r->buf[r->iget] << 8) | (r->buf[iget_a]);
+}
+
 void ringbuf_clear(ringbuf_t *r) {
     r->iput = r->iget = 0;
 }
@@ -89,8 +147,7 @@ size_t ringbuf_num_filled(ringbuf_t *r) {
 
 // If the ring buffer fills up, not all bytes will be written.
 // Returns how many bytes were successfully written.
-size_t ringbuf_put_n(ringbuf_t* r, uint8_t* buf, size_t bufsize)
-{
+size_t ringbuf_put_n(ringbuf_t* r, uint8_t* buf, size_t bufsize) {
     for(size_t i=0; i < bufsize; i++) {
         if ( ringbuf_put(r, buf[i]) < 0 ) {
             // If ringbuf is full, give up and return how many bytes
@@ -102,8 +159,7 @@ size_t ringbuf_put_n(ringbuf_t* r, uint8_t* buf, size_t bufsize)
 }
 
 // Returns how many bytes were fetched.
-size_t ringbuf_get_n(ringbuf_t* r, uint8_t* buf, size_t bufsize)
-{
+size_t ringbuf_get_n(ringbuf_t* r, uint8_t* buf, size_t bufsize) {
     for(size_t i=0; i < bufsize; i++) {
         int b = ringbuf_get(r);
         if (b < 0) {

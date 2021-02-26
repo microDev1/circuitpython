@@ -46,8 +46,8 @@ mp_obj_fun_bc_t *make_fun_bc_long_lived(mp_obj_fun_bc_t *fun_bc, uint8_t max_dep
         // Try to detect raw code.
         mp_raw_code_t* raw_code = MP_OBJ_TO_PTR(fun_bc->const_table[i]);
         if (raw_code->kind == MP_CODE_BYTECODE) {
-            raw_code->data.u_byte.bytecode = gc_make_long_lived((byte*) raw_code->data.u_byte.bytecode);
-            raw_code->data.u_byte.const_table = gc_make_long_lived((byte*) raw_code->data.u_byte.const_table);
+            raw_code->fun_data = gc_make_long_lived((byte*) raw_code->fun_data);
+            raw_code->const_table = gc_make_long_lived((byte*) raw_code->const_table);
         }
         ((mp_uint_t *) fun_bc->const_table)[i] = (mp_uint_t) make_obj_long_lived(
             (mp_obj_t) fun_bc->const_table[i], max_depth - 1);

@@ -41,6 +41,14 @@
 #define WATCHDOG_EXCEPTION_CHECK() 0
 #endif
 
+uintptr_t mp_hal_stdio_poll(uintptr_t poll_flags) {
+    uintptr_t ret = 0;
+    if ((poll_flags & MP_STREAM_POLL_RD) && uart_rx_any()) {
+        ret |= MP_STREAM_POLL_RD;
+    }
+    return ret;
+}
+
 int mp_hal_stdin_rx_chr(void) {
     for (;;) {
         #ifdef MICROPY_VM_HOOK_LOOP

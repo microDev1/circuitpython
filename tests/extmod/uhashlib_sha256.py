@@ -34,12 +34,12 @@ except TypeError as e:
 print(sha256.digest())
 
 # TODO: running .digest() several times in row is not supported()
-#h = hashlib.sha256(b'123')
-#print(h.digest())
-#print(h.digest())
+# h = hashlib.sha256(b'123')
+# print(h.digest())
+# print(h.digest())
 
 # TODO: partial digests are not supported
-#h = hashlib.sha256(b'123')
-#print(h.digest())
-#h.update(b'456')
-#print(h.digest())
+# h = hashlib.sha256(b'123')
+# print(h.digest())
+# h.update(b'456')
+# print(h.digest())
