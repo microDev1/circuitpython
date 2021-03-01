@@ -6,6 +6,9 @@ MPY_TOOL_LONGINT_IMPL = -mlongint-impl=mpz
 # Internal math library is substantially smaller than toolchain one
 INTERNAL_LIBM = 1
 
+# Number of USB endpoint pairs.
+USB_NUM_EP = 16
+
 # Chip supplied serial number, in bytes
 USB_SERIAL_NUMBER_LENGTH = 30
 
@@ -18,6 +21,7 @@ CIRCUITPY_AUDIOIO = 0
 CIRCUITPY_BITBANGIO = 0
 CIRCUITPY_BLEIO_HCI = 0
 CIRCUITPY_BOARD = 0
+CIRCUITPY_BUSDEVICE = 0
 CIRCUITPY_BUSIO = 0
 CIRCUITPY_COUNTIO = 0
 CIRCUITPY_DISPLAYIO = 0

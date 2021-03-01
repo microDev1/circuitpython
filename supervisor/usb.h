@@ -35,12 +35,18 @@
 // it may be necessary to call it directly.
 void usb_background(void);
 
+// Schedule usb background
+void usb_background_schedule(void);
+
 // Ports must call this from their particular USB IRQ handler
 void usb_irq_handler(void);
 
 // Only inits the USB peripheral clocks and pins. The peripheral will be initialized by
 // TinyUSB.
 void init_usb_hardware(void);
+
+// Temporary hook for code after init. Only used for RP2040.
+void post_usb_init(void);
 
 // Shared implementation.
 bool usb_enabled(void);

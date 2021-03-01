@@ -165,6 +165,24 @@ use what.
 Here is more info on properties from
 `Python <https://docs.python.org/3/library/functions.html#property>`_.
 
+Exceptions and asserts
+--------------------------------------------------------------------------------
+
+Raise an appropriate `Exception <https://docs.python.org/3/library/exceptions.html#bltin-exceptions>`_,
+along with a useful message, whenever a critical test or other condition fails.
+
+Example::
+
+    if not 0 <= pin <= 7:
+        raise ValueError("Pin number must be 0-7.")
+
+If memory is constrained and a more compact method is needed, use `assert`
+instead.
+
+Example::
+
+    assert 0 <= pin <= 7, "Pin number must be 0-7."
+
 Design for compatibility with CPython
 --------------------------------------------------------------------------------
 
@@ -421,7 +439,7 @@ SPI Example
           """Widget's one register."""
           with self.spi_device as spi:
               spi.write(b'0x00')
-              i2c.readinto(self.buf)
+              spi.readinto(self.buf)
           return self.buf[0]
 
 Use composition
@@ -462,7 +480,7 @@ like properties for state even if it sacrifices a bit of speed.
 Avoid allocations in drivers
 --------------------------------------------------------------------------------
 
-Although Python doesn't require managing memory, its still a good practice for
+Although Python doesn't require managing memory, it's still a good practice for
 library writers to think about memory allocations. Avoid them in drivers if
 you can because you never know how much something will be called. Fewer
 allocations means less time spent cleaning up. So, where you can, prefer
@@ -471,7 +489,7 @@ object with methods that read or write into the buffer instead of creating new
 objects. Unified hardware API classes such as `busio.SPI` are design to read and
 write to subsections of buffers.
 
-Its ok to allocate an object to return to the user. Just beware of causing more
+It's ok to allocate an object to return to the user. Just beware of causing more
 than one allocation per call due to internal logic.
 
 **However**, this is a memory tradeoff so do not do it for large or rarely used
@@ -520,7 +538,9 @@ properties.
 +-----------------------+-----------------------+-------------------------------------------------------------------------+
 | ``temperature``       | float                 | degrees centigrade                                                      |
 +-----------------------+-----------------------+-------------------------------------------------------------------------+
-| ``eCO2``              | float                 | equivalent CO2 in ppm                                                   |
+| ``CO2``               | float                 | measured CO2 in ppm                                                     |
++-----------------------+-----------------------+-------------------------------------------------------------------------+
+| ``eCO2``              | float                 | equivalent/estimated CO2 in ppm (estimated from some other measurement) |
 +-----------------------+-----------------------+-------------------------------------------------------------------------+
 | ``TVOC``              | float                 | Total Volatile Organic Compounds in ppb                                 |
 +-----------------------+-----------------------+-------------------------------------------------------------------------+
@@ -580,4 +600,4 @@ MicroPython compatibility
 --------------------------------------------------------------------------------
 
 Keeping compatibility with MicroPython isn't a high priority. It should be done
-when its not in conflict with any of the above goals.
+when it's not in conflict with any of the above goals.

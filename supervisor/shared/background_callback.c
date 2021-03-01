@@ -33,10 +33,12 @@
 #include "supervisor/shared/tick.h"
 #include "shared-bindings/microcontroller/__init__.h"
 
-STATIC volatile background_callback_t *callback_head, *callback_tail;
+STATIC volatile background_callback_t * volatile callback_head, * volatile callback_tail;
 
 #define CALLBACK_CRITICAL_BEGIN (common_hal_mcu_disable_interrupts())
 #define CALLBACK_CRITICAL_END (common_hal_mcu_enable_interrupts())
+
+MP_WEAK void port_wake_main_task(void) {}
 
 void background_callback_add_core(background_callback_t *cb) {
     CALLBACK_CRITICAL_BEGIN;
@@ -48,13 +50,14 @@ void background_callback_add_core(background_callback_t *cb) {
     cb->prev = (background_callback_t*)callback_tail;
     if (callback_tail) {
         callback_tail->next = cb;
-        cb->prev = (background_callback_t*)callback_tail;
     }
     if (!callback_head) {
         callback_head = cb;
     }
     callback_tail = cb;
     CALLBACK_CRITICAL_END;
+
+    port_wake_main_task();
 }
 
 void background_callback_add(background_callback_t *cb, background_callback_fun fun, void *data) {

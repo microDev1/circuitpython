@@ -30,15 +30,18 @@
 #include <stdbool.h>
 #include "py/obj.h"
 
+#include "shared-bindings/supervisor/RunReason.h"
 
 extern const mp_obj_type_t supervisor_runtime_type;
 
-bool common_hal_get_serial_connected(void);
+void supervisor_set_run_reason(supervisor_run_reason_t run_reason);
 
-bool common_hal_get_serial_bytes_available(void);
+bool common_hal_supervisor_runtime_get_serial_connected(void);
+
+bool common_hal_supervisor_runtime_get_serial_bytes_available(void);
 
 //TODO: placeholders for future functions
-//bool common_hal_get_repl_active(void);
-//bool common_hal_get_usb_enumerated(void);
+//bool common_hal_get_supervisor_runtime_repl_active(void);
+//bool common_hal_get_supervisor_runtime_usb_enumerated(void);
 
 #endif // MICROPY_INCLUDED_SHARED_BINDINGS_SUPERVISOR_RUNTIME_H

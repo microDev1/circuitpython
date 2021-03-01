@@ -20,7 +20,6 @@ CIRCUITPY_SAMD = 0
 CIRCUITPY_USB_MIDI = 0
 
 SUPEROPT_GC = 0
+SUPEROPT_VM = 0
 
 FROZEN_MPY_DIRS += $(TOP)/frozen/pew-pewpew-standalone-10.x
-
-CFLAGS_BOARD = --param max-inline-insns-auto=15

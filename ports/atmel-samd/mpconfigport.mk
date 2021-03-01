@@ -18,24 +18,27 @@ ifeq ($(LONGINT_IMPL),LONGLONG)
 MPY_TOOL_LONGINT_IMPL = -mlongint-impl=longlong
 endif
 
+INTERNAL_LIBM = 1
+
+USB_SERIAL_NUMBER_LENGTH = 32
+
+# Number of USB endpoint pairs.
+USB_NUM_EP = 8
+
+######################################################################
 # Put samd21-only choices here.
+
 ifeq ($(CHIP_FAMILY),samd21)
-# frequencyio not yet verified as working on SAMD21, though make it possible to override.
-ifndef CIRCUITPY_AUDIOMIXER
-CIRCUITPY_AUDIOMIXER = 0
-endif
 
-ifndef CIRCUITPY_AUDIOMP3
-CIRCUITPY_AUDIOMP3 = 0
-endif
+# The ?='s allow overriding in mpconfigboard.mk.
 
-ifndef CIRCUITPY_FREQUENCYIO
-CIRCUITPY_FREQUENCYIO = 0
-endif
-
-ifndef CIRCUITPY_TOUCHIO_USE_NATIVE
-CIRCUITPY_TOUCHIO_USE_NATIVE = 1
-endif
+CIRCUITPY_AUDIOMIXER ?= 0
+CIRCUITPY_BINASCII ?= 0
+CIRCUITPY_AUDIOMP3 ?= 0
+CIRCUITPY_BUILTINS_POW3 ?= 0
+CIRCUITPY_FREQUENCYIO ?= 0
+CIRCUITPY_JSON ?= 0
+CIRCUITPY_TOUCHIO_USE_NATIVE ?= 1
 
 # No room for HCI _bleio on SAMD21.
 CIRCUITPY_BLEIO_HCI = 0
@@ -45,8 +48,8 @@ CIRCUITPY_SDCARDIO ?= 0
 # Not enough RAM for framebuffers
 CIRCUITPY_FRAMEBUFFERIO ?= 0
 
-# SAMD21 needs separate endpoint pairs for MSC BULK IN and BULK OUT, otherwise it's erratic.
-USB_MSC_EP_NUM_OUT = 1
+# Not enough room in 192kB or 256kB builds for secondary CDC.
+CIRCUITPY_USB_CDC ?= 0
 
 CIRCUITPY_ULAB = 0
 
@@ -61,38 +64,23 @@ CIRCUITPY_TERMINALIO = 0
 endif
 
 endif # samd21
+######################################################################
 
+######################################################################
 # Put samd51-only choices here.
+
 ifeq ($(CHIP_FAMILY),samd51)
+
 # No native touchio on SAMD51.
 CIRCUITPY_TOUCHIO_USE_NATIVE = 0
 
-# The ifndef's allow overriding in mpconfigboard.mk.
+# The ?='s allow overriding in mpconfigboard.mk.
 
-ifndef CIRCUITPY_NETWORK
-CIRCUITPY_NETWORK = 0
-endif
-
-ifndef CIRCUITPY_PS2IO
-CIRCUITPY_PS2IO = 1
-endif
-
-ifndef CIRCUITPY_SAMD
-CIRCUITPY_SAMD = 1
-endif
-
-ifndef CIRCUITPY_RGBMATRIX
-CIRCUITPY_RGBMATRIX = $(CIRCUITPY_FULL_BUILD)
-endif
-
-ifndef CIRCUITPY_FRAMEBUFFERIO
-CIRCUITPY_FRAMEBUFFERIO = $(CIRCUITPY_FULL_BUILD)
-endif
+CIRCUITPY_NETWORK ?= 0
+CIRCUITPY_PS2IO ?= 1
+CIRCUITPY_SAMD ?= 1
+CIRCUITPY_RGBMATRIX ?= $(CIRCUITPY_FULL_BUILD)
+CIRCUITPY_FRAMEBUFFERIO ?= $(CIRCUITPY_FULL_BUILD)
 
 endif # samd51
-
-INTERNAL_LIBM = 1
-
-USB_SERIAL_NUMBER_LENGTH = 32
-
-USB_NUM_EP = 8
+######################################################################
