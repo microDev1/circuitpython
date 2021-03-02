@@ -47,6 +47,10 @@ void common_hal_i2cperipheral_i2c_peripheral_construct(i2cperipheral_i2c_periphe
     }
     self->addresses = addresses;
 
+    if (smbus) {
+        mp_raise_NotImplementedError(translate("SMBUS is not yet implemented on this device"));
+    }
+
     self->sda_pin = sda;
     self->scl_pin = scl;
     self->i2c_num = i2c_num_status();
@@ -99,13 +103,12 @@ int common_hal_i2cperipheral_i2c_peripheral_is_addressed(i2cperipheral_i2c_perip
 }
 
 int common_hal_i2cperipheral_i2c_peripheral_read_byte(i2cperipheral_i2c_peripheral_obj_t *self, uint8_t *data) {
-    i2c_slave_read_buffer(self->i2c_num, data, 128, 0);
+    i2c_slave_read_buffer(self->i2c_num, data, 256, 0);
     return 1;
 }
 
 int common_hal_i2cperipheral_i2c_peripheral_write_byte(i2cperipheral_i2c_peripheral_obj_t *self, uint8_t data) {
-    i2c_reset_tx_fifo(self->i2c_num);
-    i2c_slave_write_buffer(self->i2c_num, &data, 128, 0);
+    i2c_slave_write_buffer(self->i2c_num, &data, 256, 0);
     return 1;
 }
 
@@ -113,6 +116,4 @@ void common_hal_i2cperipheral_i2c_peripheral_ack(i2cperipheral_i2c_peripheral_ob
 
 }
 
-void common_hal_i2cperipheral_i2c_peripheral_close(i2cperipheral_i2c_peripheral_obj_t *self) {
-
-}
+void common_hal_i2cperipheral_i2c_peripheral_close(i2cperipheral_i2c_peripheral_obj_t *self) {}
