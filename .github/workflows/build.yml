@@ -13,18 +13,25 @@ on:
     types: [rerequested]
 
 jobs:
-  test:
+  scheduler:
     runs-on: ubuntu-20.04
     steps:
-    - name: Dump GitHub context
-      env:
-        GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"
+    - uses: actions/checkout@v2.2.0
+    - name: Diff
+      id: diff
+      run: echo "::set-output name=diff::git diff --name-only origin/${{ github.base_ref }}"
+    - name: Print diff
+      run: echo ${{ steps.diff.outputs.diff }}
+
+  test:
+    runs-on: ubuntu-20.04
+    needs: scheduler
+    steps:
     - uses: actions/checkout@v2.2.0
       with:
-        submodules: true
         fetch-depth: 0
-    - run: git fetch --recurse-submodules=no https://github.com/adafruit/circuitpython refs/tags/*:refs/tags/*
+    - name: Fetch tags
+      run: git fetch --recurse-submodules=no origin refs/tags/*:refs/tags/*
     - name: CircuitPython version
       run: |
         git describe --dirty --tags
@@ -54,19 +61,7 @@ jobs:
       with:
         name: stubs
         path: circuitpython-stubs*
-    - name: Test Documentation Build (HTML)
-      run: sphinx-build -E -W -b html -D version=${{ env.CP_VERSION }} -D release=${{ env.CP_VERSION }} . _build/html
-    - uses: actions/upload-artifact@v2
-      with:
-        name: docs
-        path: _build/html
-    - name: Test Documentation Build (LaTeX/PDF)
-      run: |
-        make latexpdf
-    - uses: actions/upload-artifact@v2
-      with:
-        name: docs
-        path: _build/latex
+
     - name: Build mpy-cross
       run: make -C mpy-cross -j2
     - name: Build unix port
@@ -124,9 +119,27 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       if: github.event_name == 'push' || (github.event_name == 'release' && (github.event.action == 'published' || github.event.action == 'rerequested'))
 
+  docs:
+    runs-on: ubuntu-20.04
+    needs: scheduler
+    steps:
+    - name: Test Documentation Build (HTML)
+      run: sphinx-build -E -W -b html -D version=${{ env.CP_VERSION }} -D release=${{ env.CP_VERSION }} . _build/html
+    - uses: actions/upload-artifact@v2
+      with:
+        name: docs
+        path: _build/html
+    - name: Test Documentation Build (LaTeX/PDF)
+      run: |
+        make latexpdf
+    - uses: actions/upload-artifact@v2
+      with:
+        name: docs
+        path: _build/latex
 
   mpy-cross-mac:
     runs-on: macos-10.15
+    needs: scheduler
     steps:
     - name: Dump GitHub context
       env:
