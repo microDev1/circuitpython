@@ -5,63 +5,57 @@
 name: Build CI
 
 on:
-  push:
   pull_request:
-  release:
-    types: [published]
-  check_suite:
-    types: [rerequested]
 
 jobs:
   scheduler:
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2.2.0
-    - name: Diff
-      id: diff
-      run: echo "::set-output name=diff::git diff --name-only origin/${{ github.base_ref }}"
-    - name: Print diff
-      run: echo ${{ steps.diff.outputs.diff }}
+      with:
+        fetch-depth: 0
+    - name: CircuitPython version
+      run: |
+        git fetch --recurse-submodules=no origin refs/tags/*:refs/tags/*
+        echo CP_VERSION=$(git describe --dirty --tags) >> $GITHUB_ENV
+        git describe --dirty --tags
+    - name: Boards
+      id: boards
+      run: |
+        if [ "$(git diff --name-only origin/${{ github.base_ref }} | sed -n '/\/boards\//p')" ]; then
+          echo "::set-output name=run::1"
+        fi
+    - name: Docs
+      id: docs
+      run: |
+        if [ "$(git diff --name-only origin/${{ github.base_ref }} | sed -n '/bindings/,/.c/p;/.md/p;/.rst/p')" ]; then
+          echo "::set-output name=run::1"
+        fi
+    outputs:
+      run-boards: echo ${{ steps.boards.outputs.run }}
+      run-docs: echo ${{ steps.docs.outputs.run }}
 
-  test:
+
+  tests:
     runs-on: ubuntu-20.04
     needs: scheduler
     steps:
     - uses: actions/checkout@v2.2.0
       with:
-        fetch-depth: 0
-    - name: Fetch tags
-      run: git fetch --recurse-submodules=no origin refs/tags/*:refs/tags/*
-    - name: CircuitPython version
-      run: |
-        git describe --dirty --tags
-        echo >>$GITHUB_ENV CP_VERSION=$(git describe --dirty --tags)
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v1
+        submodules: true
+    - uses: actions/setup-python@v1
       with:
         python-version: 3.8
     - name: Install deps
       run: |
         sudo apt-get update
         sudo apt-get install -y eatmydata
-        sudo eatmydata apt-get install -y gettext librsvg2-bin mingw-w64 latexmk texlive-fonts-recommended texlive-latex-recommended texlive-latex-extra
-        pip install requests sh click setuptools cpp-coveralls "Sphinx<4" sphinx-rtd-theme recommonmark sphinx-autoapi sphinxcontrib-svg2pdfconverter polib pyyaml astroid isort black awscli mypy
+        sudo eatmydata apt-get install -y gettext mingw-w64
+        pip install requests click setuptools cpp-coveralls awscli
     - name: Versions
       run: |
         gcc --version
         python3 --version
-    - name: New boards check
-      run: python3 -u ci_new_boards_check.py
-      working-directory: tools
-    - name: Duplicate USB VID/PID Check
-      run: python3 -u -m tools.ci_check_duplicate_usb_vid_pid
-    - name: Build and Validate Stubs
-      run: make check-stubs -j2
-    - uses: actions/upload-artifact@v2
-      with:
-        name: stubs
-        path: circuitpython-stubs*
-
     - name: Build mpy-cross
       run: make -C mpy-cross -j2
     - name: Build unix port
@@ -82,10 +76,10 @@ jobs:
         done
       working-directory: tests
       if: failure()
-    - name: Native Tests
+    - name: Native tests
       run: MICROPY_CPYTHON3=python3.8 MICROPY_MICROPYTHON=../ports/unix/micropython_coverage ./run-tests -j1 --emit native
       working-directory: tests
-    - name: mpy Tests
+    - name: mpy tests
       run: MICROPY_CPYTHON3=python3.8 MICROPY_MICROPYTHON=../ports/unix/micropython_coverage ./run-tests -j1 --via-mpy -d basics float
       working-directory: tests
     - name: Build mpy-cross.static-raspbian
@@ -106,23 +100,60 @@ jobs:
       with:
         name: mpy-cross.static-x64-windows
         path: mpy-cross/mpy-cross.static.exe
-    - name: Upload stubs and mpy-cross builds to S3
+    - name: Upload mpy-cross builds to S3
       run: |
         [ -z "$AWS_ACCESS_KEY_ID" ] || aws s3 cp mpy-cross/mpy-cross.static-raspbian s3://adafruit-circuit-python/bin/mpy-cross/mpy-cross.static-raspbian-${{ env.CP_VERSION }} --no-progress --region us-east-1
         [ -z "$AWS_ACCESS_KEY_ID" ] || aws s3 cp mpy-cross/mpy-cross.static s3://adafruit-circuit-python/bin/mpy-cross/mpy-cross.static-amd64-linux-${{ env.CP_VERSION }} --no-progress --region us-east-1
         [ -z "$AWS_ACCESS_KEY_ID" ] || aws s3 cp mpy-cross/mpy-cross.static.exe s3://adafruit-circuit-python/bin/mpy-cross/mpy-cross.static-x64-windows-${{ env.CP_VERSION }}.exe --no-progress --region us-east-1
-        zip -9r circuitpython-stubs.zip circuitpython-stubs
-        [ -z "$AWS_ACCESS_KEY_ID" ] || aws s3 cp circuitpython-stubs.zip s3://adafruit-circuit-python/bin/stubs/circuitpython-stubs-${{ env.CP_VERSION }}.zip --no-progress --region us-east-1
       env:
         AWS_PAGER: ''
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       if: github.event_name == 'push' || (github.event_name == 'release' && (github.event.action == 'published' || github.event.action == 'rerequested'))
 
+  boards:
+    runs-on: ubuntu-20.04
+    needs: scheduler
+    if: needs.scheduler.outputs.run-boards == null
+    steps:
+    - uses: actions/checkout@v2.2.0
+    - uses: actions/setup-python@v1
+      with:
+        python-version: 3.8
+    - name: Install deps
+      run: |
+        sudo apt-get update
+        pip install sh pyyaml click setuptools requests
+    - name: Init submodule
+      run: git submodule update --init tools/adabot
+    - name: New boards check
+      run: python3 -u ci_new_boards_check.py
+      working-directory: tools
+    - name: Duplicate USB VID/PID Check
+      run: python3 -u -m tools.ci_check_duplicate_usb_vid_pid
+
   docs:
     runs-on: ubuntu-20.04
     needs: scheduler
+    if: needs.scheduler.outputs.run-docs == null
     steps:
+    - uses: actions/checkout@v2.2.0
+      with:
+        fetch-depth: 0
+    - name: Install deps
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y eatmydata
+        sudo eatmydata apt-get install -y librsvg2-bin latexmk texlive-fonts-recommended texlive-latex-recommended texlive-latex-extra
+        pip install "Sphinx<4" sphinx-rtd-theme recommonmark sphinx-autoapi sphinxcontrib-svg2pdfconverter awscli isort mypy black
+    - name: Init submodule
+      run: git submodule update --init extmod/ulab
+    - name: Build and Validate Stubs
+      run: make check-stubs -j2
+    - uses: actions/upload-artifact@v2
+      with:
+        name: stubs
+        path: circuitpython-stubs*
     - name: Test Documentation Build (HTML)
       run: sphinx-build -E -W -b html -D version=${{ env.CP_VERSION }} -D release=${{ env.CP_VERSION }} . _build/html
     - uses: actions/upload-artifact@v2
@@ -136,33 +167,28 @@ jobs:
       with:
         name: docs
         path: _build/latex
+    - name: Upload stubs to S3
+      run: |
+        zip -9r circuitpython-stubs.zip circuitpython-stubs
+        [ -z "$AWS_ACCESS_KEY_ID" ] || aws s3 cp circuitpython-stubs.zip s3://adafruit-circuit-python/bin/stubs/circuitpython-stubs-${{ env.CP_VERSION }}.zip --no-progress --region us-east-1
+      env:
+        AWS_PAGER: ''
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      if: github.event_name == 'push' || (github.event_name == 'release' && (github.event.action == 'published' || github.event.action == 'rerequested'))
 
   mpy-cross-mac:
     runs-on: macos-10.15
     needs: scheduler
     steps:
-    - name: Dump GitHub context
-      env:
-        GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: echo "$GITHUB_CONTEXT"
-    - name: Install dependencies
-      run: |
-        brew install gettext
-        echo >>$GITHUB_PATH /usr/local/opt/gettext/bin
+    - uses: actions/checkout@v2.2.0
+      with:
+        submodules: true
     - name: Versions
       run: |
         gcc --version
         python3 --version
         msgfmt --version
-    - uses: actions/checkout@v2.2.0
-      with:
-        submodules: true
-        fetch-depth: 0
-    - run: git fetch --recurse-submodules=no https://github.com/adafruit/circuitpython refs/tags/*:refs/tags/*
-    - name: CircuitPython version
-      run: |
-        git describe --dirty --tags
-        echo >>$GITHUB_ENV CP_VERSION=$(git describe --dirty --tags)
     - name: Build mpy-cross
       run: make -C mpy-cross -j2
     - uses: actions/upload-artifact@v2
@@ -181,7 +207,7 @@ jobs:
 
   build-arm:
     runs-on: ubuntu-20.04
-    needs: test
+    needs: tests
     strategy:
       fail-fast: false
       matrix:
@@ -401,7 +427,7 @@ jobs:
 
   build-riscv:
     runs-on: ubuntu-20.04
-    needs: test
+    needs: tests
     strategy:
       fail-fast: false
       matrix:
@@ -449,7 +475,7 @@ jobs:
       if: github.event_name == 'push' || (github.event_name == 'release' && (github.event.action == 'published' || github.event.action == 'rerequested'))
   build-xtensa:
     runs-on: ubuntu-20.04
-    needs: test
+    needs: tests
     strategy:
       fail-fast: false
       matrix:
