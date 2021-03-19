@@ -14,26 +14,27 @@ jobs:
     - uses: actions/checkout@v2.2.0
       with:
         fetch-depth: 0
+    - uses: actions/setup-python@v1
+      with:
+        python-version: 3.8
     - name: CircuitPython version
       run: |
         git fetch --recurse-submodules=no origin refs/tags/*:refs/tags/*
         echo CP_VERSION=$(git describe --dirty --tags) >> $GITHUB_ENV
         git describe --dirty --tags
-    - name: Boards
-      id: boards
+    - name: Diff
+      id: diff
       run: |
-        if [ "$(git diff --name-only origin/${{ github.base_ref }} | sed -n '/\/boards\//p')" ]; then
-          echo "::set-output name=run::1"
-        fi
-    - name: Docs
-      id: docs
-      run: |
-        if [ "$(git diff --name-only origin/${{ github.base_ref }} | sed -n '/bindings/,/.c/p;/.md/p;/.rst/p')" ]; then
-          echo "::set-output name=run::1"
-        fi
+        changes = $(git --no-pager diff --name-only origin/${{ github.base_ref }})
+        echo "::set-output name=diff::$changes"
+    - name: Print
+      run: echo ${{ steps.diff.outputs.diff }}
+    - name: Schedule jobs
+      id: schedule-jobs
+      run: python3 tools/ci_scheduler.py
     outputs:
-      run-boards: echo ${{ steps.boards.outputs.run }}
-      run-docs: echo ${{ steps.docs.outputs.run }}
+      run-boards: echo ${{ steps.schedule-jobs.outputs.boards }}
+      run-docs: echo ${{ steps.schedule-jobs.outputs.docs }}
 
 
   tests:
