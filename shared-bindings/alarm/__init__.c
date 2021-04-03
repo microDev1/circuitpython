@@ -81,6 +81,45 @@ void validate_objs_are_alarms(size_t n_args, const mp_obj_t *objs) {
     }
 }
 
+mp_obj_type_t mp_type_AlarmException = {
+    { &mp_type_type },
+    .name = MP_QSTR_AlarmException,
+    .make_new = mp_obj_exception_make_new,
+    .attr = mp_obj_exception_attr,
+    .parent = &mp_type_Exception,
+};
+
+mp_obj_exception_t mp_alarm_exception = {
+    .base.type = &mp_type_AlarmException,
+    .traceback_alloc = 0,
+    .traceback_len = 0,
+    .traceback_data = NULL,
+    .args = (mp_obj_tuple_t *)&mp_const_empty_tuple_obj,
+};
+
+//| def raise_exception_on_alarms(*alarms: Alarm) -> Alarm:
+//|     """Raises AlarmException when an alarm gets triggered.
+//|     The alarm causing the exception is available as `alarm.AlarmException.args`.
+//|
+//|     If no alarms are specified, return immediately.
+//|
+//|     **This does not sleep.
+//|     """
+//|     ...
+//|
+STATIC mp_obj_t alarm_raise_exception_on_alarms(size_t n_args, const mp_obj_t *args) {
+    if (n_args == 0) {
+        return mp_const_none;
+    }
+
+    validate_objs_are_alarms(n_args, args);
+
+    common_hal_alarm_set_exception_on_alarms(n_args, args);
+
+    return mp_const_none;
+}
+MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(alarm_raise_exception_on_alarms_obj, 1, MP_OBJ_FUN_ARGS_MAX, alarm_raise_exception_on_alarms);
+
 //| def light_sleep_until_alarms(*alarms: Alarm) -> Alarm:
 //|     """Go into a light sleep until awakened one of the alarms. The alarm causing the wake-up
 //|     is returned, and is also available as `alarm.wake_alarm`.
@@ -160,7 +199,6 @@ MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(alarm_exit_and_deep_sleep_until_alarms_obj, 
 
 STATIC const mp_map_elem_t alarm_pin_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_pin) },
-
     { MP_ROM_QSTR(MP_QSTR_PinAlarm), MP_OBJ_FROM_PTR(&alarm_pin_pinalarm_type) },
 };
 
@@ -173,7 +211,6 @@ STATIC const mp_obj_module_t alarm_pin_module = {
 
 STATIC const mp_map_elem_t alarm_time_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_time) },
-
     { MP_ROM_QSTR(MP_QSTR_TimeAlarm), MP_OBJ_FROM_PTR(&alarm_time_timealarm_type) },
 };
 
@@ -203,6 +240,9 @@ STATIC mp_map_elem_t alarm_module_globals_table[] = {
     // wake_alarm is a mutable attribute.
     { MP_ROM_QSTR(MP_QSTR_wake_alarm), mp_const_none },
 
+    { MP_ROM_QSTR(MP_QSTR_AlarmException),   MP_ROM_PTR(&mp_type_AlarmException) },
+
+    { MP_ROM_QSTR(MP_QSTR_raise_exception_on_alarms), MP_OBJ_FROM_PTR(&alarm_raise_exception_on_alarms_obj) },
     { MP_ROM_QSTR(MP_QSTR_light_sleep_until_alarms), MP_OBJ_FROM_PTR(&alarm_light_sleep_until_alarms_obj) },
     { MP_ROM_QSTR(MP_QSTR_exit_and_deep_sleep_until_alarms),
       MP_OBJ_FROM_PTR(&alarm_exit_and_deep_sleep_until_alarms_obj) },

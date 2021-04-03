@@ -128,6 +128,17 @@ STATIC void _idle_until_alarm(void) {
     }
 }
 
+void common_hal_alarm_set_exception_on_alarms(size_t n_alarms, const mp_obj_t *alarms) {
+    mp_alarm_exception.args = mp_obj_new_tuple(1, alarms);
+    mp_obj_exception_clear_traceback(MP_OBJ_FROM_PTR(&mp_alarm_exception));
+    MP_STATE_VM(mp_pending_exception) = &mp_alarm_exception;
+    #if MICROPY_ENABLE_SCHEDULER
+    if (MP_STATE_VM(sched_state) == MP_SCHED_IDLE) {
+        MP_STATE_VM(sched_state) = MP_SCHED_PENDING;
+    }
+    #endif
+}
+
 mp_obj_t common_hal_alarm_light_sleep_until_alarms(size_t n_alarms, const mp_obj_t *alarms) {
     _setup_sleep_alarms(false, n_alarms, alarms);
 
