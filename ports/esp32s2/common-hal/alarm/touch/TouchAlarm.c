@@ -73,7 +73,7 @@ mp_obj_t alarm_touch_touchalarm_get_wakeup_alarm(const size_t n_alarms, const mp
 }
 
 // This is used to wake the main CircuitPython task.
-void touch_interrupt(void *arg) {
+void touch_interrupt_sleep(void *arg) {
     (void)arg;
     woke_up = true;
     BaseType_t task_wakeup;
@@ -83,13 +83,20 @@ void touch_interrupt(void *arg) {
     }
 }
 
-void alarm_touch_touchalarm_set_alarm(const bool deep_sleep, const size_t n_alarms, const mp_obj_t *alarms) {
+// This is used to raise an exception.
+void touch_interrupt_exception(void *arg) {
+    (void)arg;
+    woke_up = true;
+    alarm_raise_exception();
+}
+
+void alarm_touch_touchalarm_set_alarm(const alarm_mode_t mode, const size_t n_alarms, const mp_obj_t *alarms) {
     bool touch_alarm_set = false;
     alarm_touch_touchalarm_obj_t *touch_alarm = MP_OBJ_NULL;
 
     for (size_t i = 0; i < n_alarms; i++) {
         if (MP_OBJ_IS_TYPE(alarms[i], &alarm_touch_touchalarm_type)) {
-            if (deep_sleep && touch_alarm_set) {
+            if ((mode == DEEP_SLEEP) && touch_alarm_set) {
                 mp_raise_ValueError(translate("Only one TouchAlarm can be set in deep sleep."));
             }
             touch_alarm = MP_OBJ_TO_PTR(alarms[i]);
@@ -102,7 +109,8 @@ void alarm_touch_touchalarm_set_alarm(const bool deep_sleep, const size_t n_alar
         return;
     }
 
-    // configure interrupt for pretend to deep sleep
+    // configure interrupt for light sleep,
+    // pretend to sleep, raise exception.
     // this will be disabled if we actually deep sleep
 
     // reset touch peripheral
@@ -127,7 +135,8 @@ void alarm_touch_touchalarm_set_alarm(const bool deep_sleep, const size_t n_alar
 
     // configure touch interrupt
     touch_pad_timeout_set(true, SOC_TOUCH_PAD_THRESHOLD_MAX);
-    touch_pad_isr_register(touch_interrupt, NULL, TOUCH_PAD_INTR_MASK_ALL);
+    touch_pad_isr_register(((mode == RAISE_EXCEPTION) ? touch_interrupt_exception : touch_interrupt_sleep),
+        NULL, TOUCH_PAD_INTR_MASK_ALL);
     touch_pad_intr_enable(TOUCH_PAD_INTR_MASK_ACTIVE | TOUCH_PAD_INTR_MASK_INACTIVE);
 }
 

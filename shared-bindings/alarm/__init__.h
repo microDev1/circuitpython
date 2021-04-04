@@ -31,6 +31,10 @@
 
 #include "common-hal/alarm/__init__.h"
 
+extern mp_obj_exception_t mp_alarm_exception;
+
+extern void common_hal_alarm_set_exception_on_alarms(size_t n_alarms, const mp_obj_t *alarms);
+
 extern mp_obj_t common_hal_alarm_light_sleep_until_alarms(size_t n_alarms, const mp_obj_t *alarms);
 
 // Deep sleep is a two step process. Alarms are set when the VM is valid but
@@ -52,9 +56,7 @@ extern mp_obj_t common_hal_alarm_get_wake_alarm(void);
 // Used by wake-up code.
 void alarm_save_wake_alarm(void);
 
-
 // True if an alarm is alerting. This is most useful for pretend deep sleep.
 extern bool alarm_woken_from_sleep(void);
-
 
 #endif  // MICROPY_INCLUDED_SHARED_BINDINGS_ALARM___INIT___H

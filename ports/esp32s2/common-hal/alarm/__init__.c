@@ -109,10 +109,10 @@ mp_obj_t common_hal_alarm_get_wake_alarm(void) {
 }
 
 // Set up light sleep or deep sleep alarms.
-STATIC void _setup_sleep_alarms(bool deep_sleep, size_t n_alarms, const mp_obj_t *alarms) {
-    alarm_pin_pinalarm_set_alarms(deep_sleep, n_alarms, alarms);
-    alarm_time_timealarm_set_alarms(deep_sleep, n_alarms, alarms);
-    alarm_touch_touchalarm_set_alarm(deep_sleep, n_alarms, alarms);
+STATIC void _setup_alarms(const alarm_mode_t mode, const size_t n_alarms, const mp_obj_t *alarms) {
+    alarm_pin_pinalarm_set_alarms(mode, n_alarms, alarms);
+    alarm_time_timealarm_set_alarms(mode, n_alarms, alarms);
+    alarm_touch_touchalarm_set_alarm(mode, n_alarms, alarms);
 }
 
 STATIC void _idle_until_alarm(void) {
@@ -128,8 +128,23 @@ STATIC void _idle_until_alarm(void) {
     }
 }
 
+void alarm_raise_exception(void) {
+    mp_alarm_exception.args = mp_obj_new_tuple(1, common_hal_alarm_get_wake_alarm());
+    mp_obj_exception_clear_traceback(MP_OBJ_FROM_PTR(&mp_alarm_exception));
+    MP_STATE_VM(mp_pending_exception) = &mp_alarm_exception;
+    #if MICROPY_ENABLE_SCHEDULER
+    if (MP_STATE_VM(sched_state) == MP_SCHED_IDLE) {
+        MP_STATE_VM(sched_state) = MP_SCHED_PENDING;
+    }
+    #endif
+}
+
+void common_hal_alarm_set_exception_on_alarms(size_t n_alarms, const mp_obj_t *alarms) {
+    _setup_alarms(RAISE_EXCEPTION, n_alarms, alarms);
+}
+
 mp_obj_t common_hal_alarm_light_sleep_until_alarms(size_t n_alarms, const mp_obj_t *alarms) {
-    _setup_sleep_alarms(false, n_alarms, alarms);
+    _setup_alarms(LIGHT_SLEEP, n_alarms, alarms);
 
     // We cannot esp_light_sleep_start() here because it shuts down all non-RTC peripherals.
     _idle_until_alarm();
@@ -144,7 +159,7 @@ mp_obj_t common_hal_alarm_light_sleep_until_alarms(size_t n_alarms, const mp_obj
 }
 
 void common_hal_alarm_set_deep_sleep_alarms(size_t n_alarms, const mp_obj_t *alarms) {
-    _setup_sleep_alarms(true, n_alarms, alarms);
+    _setup_alarms(DEEP_SLEEP, n_alarms, alarms);
 }
 
 void NORETURN alarm_enter_deep_sleep(void) {

@@ -77,7 +77,7 @@ void alarm_time_timealarm_reset(void) {
     woke_up = false;
 }
 
-void alarm_time_timealarm_set_alarms(bool deep_sleep, size_t n_alarms, const mp_obj_t *alarms) {
+void alarm_time_timealarm_set_alarms(const alarm_mode_t mode, size_t n_alarms, const mp_obj_t *alarms) {
     bool timealarm_set = false;
     alarm_time_timealarm_obj_t *timealarm = MP_OBJ_NULL;
 

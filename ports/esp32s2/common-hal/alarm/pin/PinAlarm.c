@@ -172,7 +172,7 @@ void alarm_pin_pinalarm_reset(void) {
     pin_31_0_status = 0;
 }
 
-void alarm_pin_pinalarm_set_alarms(bool deep_sleep, size_t n_alarms, const mp_obj_t *alarms) {
+void alarm_pin_pinalarm_set_alarms(const alarm_mode_t mode, size_t n_alarms, const mp_obj_t *alarms) {
     // Bitmask of wake up settings.
     size_t high_count = 0;
     size_t low_count = 0;
@@ -199,14 +199,14 @@ void alarm_pin_pinalarm_set_alarms(bool deep_sleep, size_t n_alarms, const mp_ob
     if (high_count == 0 && low_count == 0) {
         return;
     }
-    if (deep_sleep && low_count > 2 && high_count == 0) {
+    if ((mode == DEEP_SLEEP) && low_count > 2 && high_count == 0) {
         mp_raise_ValueError(translate("Can only alarm on two low pins from deep sleep."));
     }
-    if (deep_sleep && low_count > 1 && high_count > 0) {
+    if ((mode == DEEP_SLEEP) && low_count > 1 && high_count > 0) {
         mp_raise_ValueError(translate("Can only alarm on one low pin while others alarm high from deep sleep."));
     }
     // Only use ext0 and ext1 during deep sleep.
-    if (deep_sleep) {
+    if (mode == DEEP_SLEEP) {
         if (high_count > 0) {
             if (esp_sleep_enable_ext1_wakeup(high_alarms, ESP_EXT1_WAKEUP_ANY_HIGH) != ESP_OK) {
                 mp_raise_ValueError(translate("Can only alarm on RTC IO from deep sleep."));

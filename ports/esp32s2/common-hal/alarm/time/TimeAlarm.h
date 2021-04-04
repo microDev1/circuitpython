@@ -26,6 +26,7 @@
 
 
 #include "py/obj.h"
+#include "common-hal/alarm/__init__.h"
 
 typedef struct {
     mp_obj_base_t base;
@@ -36,5 +37,5 @@ typedef struct {
 mp_obj_t alarm_time_timealarm_get_wakeup_alarm(size_t n_alarms, const mp_obj_t *alarms);
 // Check for the wake up alarm from pretend deep sleep.
 bool alarm_time_timealarm_woke_us_up(void);
-void alarm_time_timealarm_set_alarms(bool deep_sleep, size_t n_alarms, const mp_obj_t *alarms);
+void alarm_time_timealarm_set_alarms(const alarm_mode_t mode, size_t n_alarms, const mp_obj_t *alarms);
 void alarm_time_timealarm_reset(void);

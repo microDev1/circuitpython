@@ -31,6 +31,13 @@
 
 const alarm_sleep_memory_obj_t alarm_sleep_memory_obj;
 
+typedef enum {
+    RAISE_EXCEPTION = 0,
+    LIGHT_SLEEP,
+    DEEP_SLEEP
+} alarm_mode_t;
+
 extern void alarm_reset(void);
+extern void alarm_raise_exception(void);
 
 #endif // MICROPY_INCLUDED_ESP32S2_COMMON_HAL_ALARM__INIT__H

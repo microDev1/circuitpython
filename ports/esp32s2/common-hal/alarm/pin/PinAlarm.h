@@ -26,6 +26,7 @@
 
 #include "py/obj.h"
 #include "py/objtuple.h"
+#include "common-hal/alarm/__init__.h"
 
 typedef struct {
     mp_obj_base_t base;
@@ -35,7 +36,7 @@ typedef struct {
 } alarm_pin_pinalarm_obj_t;
 
 void alarm_pin_pinalarm_reset(void);
-void alarm_pin_pinalarm_set_alarms(bool deep_sleep, size_t n_alarms, const mp_obj_t *alarms);
+void alarm_pin_pinalarm_set_alarms(const alarm_mode_t mode, size_t n_alarms, const mp_obj_t *alarms);
 void alarm_pin_pinalarm_prepare_for_deep_sleep(void);
 mp_obj_t alarm_pin_pinalarm_get_wakeup_alarm(size_t n_alarms, const mp_obj_t *alarms);
 bool alarm_pin_pinalarm_woke_us_up(void);
