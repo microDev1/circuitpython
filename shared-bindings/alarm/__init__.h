@@ -31,7 +31,7 @@
 
 #include "common-hal/alarm/__init__.h"
 
-extern mp_obj_exception_t mp_alarm_exception;
+extern mp_obj_type_t mp_type_AlarmException;
 
 extern void common_hal_alarm_set_exception_on_alarms(size_t n_alarms, const mp_obj_t *alarms);
 

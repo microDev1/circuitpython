@@ -47,6 +47,8 @@
 #include "components/soc/soc/esp32s2/include/soc/rtc_cntl_reg.h"
 #include "components/driver/include/driver/uart.h"
 
+TaskHandle_t alarm_raise_exception_task = NULL;
+
 // Singleton instance of SleepMemory.
 const alarm_sleep_memory_obj_t alarm_sleep_memory_obj = {
     .base = {
@@ -128,9 +130,10 @@ STATIC void _idle_until_alarm(void) {
     }
 }
 
-void alarm_raise_exception(void) {
-    mp_alarm_exception.args = mp_obj_new_tuple(1, common_hal_alarm_get_wake_alarm());
-    mp_obj_exception_clear_traceback(MP_OBJ_FROM_PTR(&mp_alarm_exception));
+static void alarm_raise_exception(void* pvParameters) {
+    const mp_obj_exception_t mp_alarm_exception = {
+        {&mp_type_AlarmException}, 0, 0, NULL, mp_obj_new_tuple(1, common_hal_alarm_get_wake_alarm()),
+    };
     MP_STATE_VM(mp_pending_exception) = &mp_alarm_exception;
     #if MICROPY_ENABLE_SCHEDULER
     if (MP_STATE_VM(sched_state) == MP_SCHED_IDLE) {
@@ -140,6 +143,7 @@ void alarm_raise_exception(void) {
 }
 
 void common_hal_alarm_set_exception_on_alarms(size_t n_alarms, const mp_obj_t *alarms) {
+    xTaskCreate(alarm_raise_exception, "alarm_raise_exception", 100, NULL, 2, &alarm_raise_exception_task);
     _setup_alarms(RAISE_EXCEPTION, n_alarms, alarms);
 }
 

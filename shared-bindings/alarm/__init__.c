@@ -81,22 +81,6 @@ void validate_objs_are_alarms(size_t n_args, const mp_obj_t *objs) {
     }
 }
 
-mp_obj_type_t mp_type_AlarmException = {
-    { &mp_type_type },
-    .name = MP_QSTR_AlarmException,
-    .make_new = mp_obj_exception_make_new,
-    .attr = mp_obj_exception_attr,
-    .parent = &mp_type_Exception,
-};
-
-mp_obj_exception_t mp_alarm_exception = {
-    .base.type = &mp_type_AlarmException,
-    .traceback_alloc = 0,
-    .traceback_len = 0,
-    .traceback_data = NULL,
-    .args = (mp_obj_tuple_t *)&mp_const_empty_tuple_obj,
-};
-
 //| def raise_exception_on_alarms(*alarms: Alarm) -> Alarm:
 //|     """Raises AlarmException when an alarm gets triggered.
 //|     The alarm causing the exception is available as `alarm.AlarmException.args`.
@@ -119,6 +103,14 @@ STATIC mp_obj_t alarm_raise_exception_on_alarms(size_t n_args, const mp_obj_t *a
     return mp_const_none;
 }
 MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(alarm_raise_exception_on_alarms_obj, 1, MP_OBJ_FUN_ARGS_MAX, alarm_raise_exception_on_alarms);
+
+mp_obj_type_t mp_type_AlarmException = {
+    { &mp_type_type },
+    .name = MP_QSTR_AlarmException,
+    .make_new = mp_obj_exception_make_new,
+    .attr = mp_obj_exception_attr,
+    .parent = &mp_type_Exception,
+};
 
 //| def light_sleep_until_alarms(*alarms: Alarm) -> Alarm:
 //|     """Go into a light sleep until awakened one of the alarms. The alarm causing the wake-up

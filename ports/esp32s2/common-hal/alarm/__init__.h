@@ -27,6 +27,8 @@
 #ifndef MICROPY_INCLUDED_ESP32S2_COMMON_HAL_ALARM__INIT__H
 #define MICROPY_INCLUDED_ESP32S2_COMMON_HAL_ALARM__INIT__H
 
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "common-hal/alarm/SleepMemory.h"
 
 const alarm_sleep_memory_obj_t alarm_sleep_memory_obj;
@@ -38,6 +40,6 @@ typedef enum {
 } alarm_mode_t;
 
 extern void alarm_reset(void);
-extern void alarm_raise_exception(void);
+extern TaskHandle_t alarm_raise_exception_task;
 
 #endif // MICROPY_INCLUDED_ESP32S2_COMMON_HAL_ALARM__INIT__H

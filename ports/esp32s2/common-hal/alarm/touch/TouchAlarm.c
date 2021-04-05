@@ -87,7 +87,9 @@ void touch_interrupt_sleep(void *arg) {
 void touch_interrupt_exception(void *arg) {
     (void)arg;
     woke_up = true;
-    alarm_raise_exception();
+    if (xTaskResumeFromISR(alarm_raise_exception_task) == 1) {
+        taskYIELD();
+    }
 }
 
 void alarm_touch_touchalarm_set_alarm(const alarm_mode_t mode, const size_t n_alarms, const mp_obj_t *alarms) {
