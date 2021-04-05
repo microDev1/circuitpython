@@ -371,8 +371,6 @@ jobs:
         gcc --version
         arm-none-eabi-gcc --version
         python3 --version
-    - name: mpy-cross
-      run: make -C mpy-cross -j2
     - name: build
       run: python3 -u build_release_files.py
       working-directory: tools
@@ -420,8 +418,6 @@ jobs:
         gcc --version
         riscv64-unknown-elf-gcc --version
         python3 --version
-    - name: mpy-cross
-      run: make -C mpy-cross -j2
     - name: build
       run: python3 -u build_release_files.py
       working-directory: tools
@@ -438,6 +434,7 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       if: github.event_name == 'push' || (github.event_name == 'release' && (github.event.action == 'published' || github.event.action == 'rerequested'))
+
   build-xtensa:
     runs-on: ubuntu-20.04
     needs: test
@@ -518,8 +515,6 @@ jobs:
       env:
         IDF_PATH: ${{ github.workspace }}/ports/esp32s2/esp-idf
         IDF_TOOLS_PATH: ${{ github.workspace }}/.idf_tools
-    - name: mpy-cross
-      run: make -C mpy-cross -j2
     - name: build
       run: |
         source $IDF_PATH/export.sh
