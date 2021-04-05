@@ -130,20 +130,14 @@ STATIC void _idle_until_alarm(void) {
     }
 }
 
-static void alarm_raise_exception(void* pvParameters) {
-    const mp_obj_exception_t mp_alarm_exception = {
-        {&mp_type_AlarmException}, 0, 0, NULL, mp_obj_new_tuple(1, common_hal_alarm_get_wake_alarm()),
-    };
-    MP_STATE_VM(mp_pending_exception) = &mp_alarm_exception;
-    #if MICROPY_ENABLE_SCHEDULER
-    if (MP_STATE_VM(sched_state) == MP_SCHED_IDLE) {
-        MP_STATE_VM(sched_state) = MP_SCHED_PENDING;
-    }
-    #endif
+static void alarm_raise_exception(void *pvParameters) {
+    mp_raise_arg1(&mp_type_AlarmException, common_hal_alarm_get_wake_alarm());
+    vTaskDelete(NULL);
 }
 
 void common_hal_alarm_set_exception_on_alarms(size_t n_alarms, const mp_obj_t *alarms) {
-    xTaskCreate(alarm_raise_exception, "alarm_raise_exception", 100, NULL, 2, &alarm_raise_exception_task);
+    xTaskCreate(alarm_raise_exception, "alarm_raise_exception", 1000, NULL, 0, &alarm_raise_exception_task);
+    vTaskSuspend(alarm_raise_exception_task);
     _setup_alarms(RAISE_EXCEPTION, n_alarms, alarms);
 }
 
