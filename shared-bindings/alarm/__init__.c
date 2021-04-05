@@ -87,7 +87,7 @@ void validate_objs_are_alarms(size_t n_args, const mp_obj_t *objs) {
 //|
 //|     If no alarms are specified, return immediately.
 //|
-//|     **This does not sleep.
+//|     **This does not sleep.**
 //|     """
 //|     ...
 //|
