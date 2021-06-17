@@ -19,7 +19,9 @@ jobs:
     - name: Cache build environment
       uses: actions/cache@v2
       with:
-        path: /home/runner/work/circuitpython/
+        path: |
+          ~/.cache/pip
+          /home/runner/work/circuitpython/
         key: ${{ github.run_id }}-${{ github.run_number }}
     - name: Set up Python 3.8
       uses: actions/setup-python@v1
@@ -60,18 +62,6 @@ jobs:
       env:
         IDF_PATH: ${{ github.workspace }}/ports/esp32s2/esp-idf
         IDF_TOOLS_PATH: ${{ github.workspace }}/.idf_tools
-    - name: Versions
-      run: |
-        source $IDF_PATH/export.sh
-        gcc --version
-        xtensa-esp32s2-elf-gcc --version
-        python3 --version
-        ninja --version
-        cmake --version
-      shell: bash
-      env:
-        IDF_PATH: ${{ github.workspace }}/ports/esp32s2/esp-idf
-        IDF_TOOLS_PATH: ${{ github.workspace }}/.idf_tools
     - name: mpy-cross
       run: make -C mpy-cross -j2
 
@@ -107,17 +97,39 @@ jobs:
         - "unexpectedmaker_tinys2"
 
     steps:
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.8
     - name: Cache build environment
       id: cache-build-env
       uses: actions/cache@v2
       with:
-        path: /home/runner/work/circuitpython/
+        path: |
+          ~/.cache/pip
+          /home/runner/work/circuitpython/
         key: ${{ github.run_id }}-${{ github.run_number }}
     - name: Check cache-miss
       if: steps.cache-build-env.outputs.cache-hit != 'true'
       run: |
         echo "Cache-miss spotted. Aborting..."
         exit 1
+    - name: Install deps
+      run: |
+        pip install -r requirements-dev.txt
+        sudo apt-get install -y gettext ninja-build
+    - name: Versions
+      run: |
+        source $IDF_PATH/export.sh
+        gcc --version
+        xtensa-esp32s2-elf-gcc --version
+        python3 --version
+        ninja --version
+        cmake --version
+      shell: bash
+      env:
+        IDF_PATH: ${{ github.workspace }}/ports/esp32s2/esp-idf
+        IDF_TOOLS_PATH: ${{ github.workspace }}/.idf_tools
     - name: Setup build failure matcher
       run: echo "::add-matcher::$GITHUB_WORKSPACE/.github/workflows/match-build-fail.json"
     - name: build
