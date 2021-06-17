@@ -43,11 +43,6 @@ jobs:
       run: |
         gcc --version
         python3 --version
-    - name: New boards check
-      run: python3 -u ci_new_boards_check.py
-      working-directory: tools
-    - name: Duplicate USB VID/PID Check
-      run: python3 -u -m tools.ci_check_duplicate_usb_vid_pid
     - name: Build mpy-cross
       run: make -C mpy-cross -j2
     - name: Build unix port
@@ -152,6 +147,10 @@ jobs:
         IDF_TOOLS_PATH: ${{ github.workspace }}/.idf_tools
     - name: mpy-cross
       run: make -C mpy-cross -j2
+    - name: ls
+      run: |
+        ls ~/
+        ls ${{ github.workspace }}
 
   build-xtensa:
     runs-on: ubuntu-20.04
