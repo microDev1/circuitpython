@@ -16,48 +16,28 @@ jobs:
   scheduler-xtensa:
     runs-on: ubuntu-20.04
     steps:
-    - name: Cache build environment
+    - name: Set up Cache
       uses: actions/cache@v2
       with:
-        path: |
-          ~/.cache/pip/
-          /home/runner/work/circuitpython/
-        key: ${{ github.run_id }}-${{ github.run_number }}
-    - name: Set up Python 3.8
+        path: /tmp/.buildx-cache
+        key: ${{ runner.os }}-buildx-${{ github.sha }}-test
+    - name: Set up Python
       uses: actions/setup-python@v1
       with:
         python-version: 3.8
-    - uses: actions/checkout@v2.2.0
+    - name: Docker Build
+      uses: docker/build-push-action@v2
       with:
-        submodules: true
-        fetch-depth: 0
-    - run: git fetch --recurse-submodules=no https://github.com/adafruit/circuitpython refs/tags/*:refs/tags/*
-    - name: CircuitPython version
-      run: git describe --dirty --tags
-    - name: Clone IDF submodules
+        push: false
+        cache-from: type=local,src=/tmp/.buildx-cache
+        cache-to: type=local,dest=/tmp/.buildx-cache-new
+    # Temp fix
+    # https://github.com/docker/build-push-action/issues/252
+    # https://github.com/moby/buildkit/issues/1896
+    - name: Move cache
       run: |
-        (cd $IDF_PATH && git submodule update --init)
-      env:
-        IDF_PATH: ${{ github.workspace }}/ports/esp32s2/esp-idf
-    - name: Install IDF tools
-      run: |
-        $IDF_PATH/tools/idf_tools.py --non-interactive install required
-        $IDF_PATH/tools/idf_tools.py --non-interactive install cmake
-        $IDF_PATH/tools/idf_tools.py --non-interactive install-python-env
-        rm -rf $IDF_TOOLS_PATH/dist
-      env:
-        IDF_PATH: ${{ github.workspace }}/ports/esp32s2/esp-idf
-        IDF_TOOLS_PATH: ${{ github.workspace }}/.idf_tools
-    - name: Install CircuitPython deps
-      run: |
-        source $IDF_PATH/export.sh
-        pip install -r requirements-dev.txt
-        sudo apt-get install -y gettext ninja-build
-      env:
-        IDF_PATH: ${{ github.workspace }}/ports/esp32s2/esp-idf
-        IDF_TOOLS_PATH: ${{ github.workspace }}/.idf_tools
-    - name: mpy-cross
-      run: make -C mpy-cross -j2
+        rm -rf /tmp/.buildx-cache
+        mv /tmp/.buildx-cache-new /tmp/.buildx-cache
 
   build-xtensa:
     runs-on: ubuntu-20.04
@@ -108,10 +88,6 @@ jobs:
       run: |
         echo "Cache-miss spotted. Aborting..."
         exit 1
-    - name: Install deps
-      run: |
-        pip install -r requirements-dev.txt
-        sudo apt-get install -y gettext ninja-build
     - name: Versions
       run: |
         source $IDF_PATH/export.sh
@@ -120,10 +96,6 @@ jobs:
         python3 --version
         ninja --version
         cmake --version
-      shell: bash
-      env:
-        IDF_PATH: ${{ github.workspace }}/ports/esp32s2/esp-idf
-        IDF_TOOLS_PATH: ${{ github.workspace }}/.idf_tools
     - name: Setup build failure matcher
       run: echo "::add-matcher::$GITHUB_WORKSPACE/.github/workflows/match-build-fail.json"
     - name: build
