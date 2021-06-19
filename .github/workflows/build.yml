@@ -20,7 +20,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: |
-          ~/.cache/pip
+          ~/.cache/pip/
           /home/runner/work/circuitpython/
         key: ${{ github.run_id }}-${{ github.run_number }}
     - name: Set up Python 3.8
@@ -34,12 +34,6 @@ jobs:
     - run: git fetch --recurse-submodules=no https://github.com/adafruit/circuitpython refs/tags/*:refs/tags/*
     - name: CircuitPython version
       run: git describe --dirty --tags
-    - uses: actions/cache@v2
-      name: Fetch IDF tool cache
-      id: idf-cache
-      with:
-        path: ${{ github.workspace }}/.idf_tools
-        key: ${{ runner.os }}-idf-tools-${{ hashFiles('.git/modules/ports/esp32s2/esp-idf/HEAD') }}-20210506
     - name: Clone IDF submodules
       run: |
         (cd $IDF_PATH && git submodule update --init)
@@ -106,7 +100,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: |
-          ~/.cache/pip
+          ~/.cache/pip/
           /home/runner/work/circuitpython/
         key: ${{ github.run_id }}-${{ github.run_number }}
     - name: Check cache-miss
