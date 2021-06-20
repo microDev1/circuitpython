@@ -21,14 +21,15 @@ jobs:
       with:
         path: /tmp/.buildx-cache
         key: ${{ runner.os }}-buildx-${{ github.sha }}-test
-    - name: Set up Python
-      uses: actions/setup-python@v1
+    - name: Setup repo
+      uses: actions/checkout@v2
       with:
-        python-version: 3.8
+        fetch-depth: 0
     - name: Docker Build
       uses: docker/build-push-action@v2
       with:
         push: false
+        context: .
     # Temp fix
     # https://github.com/docker/build-push-action/issues/252
     # https://github.com/moby/buildkit/issues/1896
