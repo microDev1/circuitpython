@@ -39,13 +39,18 @@
 //|     :type microcontroller.RunMode:"""
 //|
 //|     SAFE_MODE: RunMode
-//|     """Run CircuitPython in safe mode. User code will not be run and the
+//|     """Run CircuitPython in safe mode. User code will not run and the
 //|     file system will be writeable over USB.
 //|
 //|     :type microcontroller.RunMode:"""
 //|
+//|     UF2: RunMode
+//|     """Run the uf2 bootloader.
+//|
+//|     :type microcontroller.RunMode:"""
+//|
 //|     BOOTLOADER: RunMode
-//|     """Run the bootloader.
+//|     """Run the default bootloader.
 //|
 //|     :type microcontroller.RunMode:"""
 //|

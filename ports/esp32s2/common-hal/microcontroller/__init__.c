@@ -44,6 +44,8 @@
 
 #include "soc/rtc_cntl_reg.h"
 #include "esp_private/system_internal.h"
+
+#include "esp32s2/rom/rtc.h"
 #include "esp32s2/rom/usb/usb_persist.h"
 #include "esp32s2/rom/usb/chip_usb_dw_wrapper.h"
 
@@ -75,15 +77,17 @@ void common_hal_mcu_enable_interrupts(void) {
 void common_hal_mcu_on_next_reset(mcu_runmode_t runmode) {
     switch (runmode) {
         case RUNMODE_UF2:
-            // call to esp_reset_reason() is required to properly link of esp_reset_reason_set_hint()
             // 0x11F2 is APP_REQUEST_UF2_RESET_HINT & is defined by TinyUF2
-            (void)esp_reset_reason();
             esp_reset_reason_set_hint(0x11F2);
             break;
         case RUNMODE_NORMAL:
             // revert back to normal boot
+            REG_WRITE(RTC_RESET_CAUSE_REG, 0);  // reset uf2
+            REG_WRITE(RTC_CNTL_STORE0_REG, 0);  // reset safe mode
+            REG_WRITE(RTC_CNTL_OPTION1_REG, 0); // reset bootloader
             break;
         case RUNMODE_SAFE_MODE:
+            // enter safe mode on next boot
             safe_mode_on_next_reset(PROGRAMMATIC_SAFE_MODE);
             break;
         case RUNMODE_BOOTLOADER:
