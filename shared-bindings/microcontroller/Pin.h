@@ -27,8 +27,8 @@
 #ifndef MICROPY_INCLUDED_SHARED_BINDINGS_MICROCONTROLLER_PIN_H
 #define MICROPY_INCLUDED_SHARED_BINDINGS_MICROCONTROLLER_PIN_H
 
-#include "common-hal/microcontroller/Pin.h"
 #include "py/obj.h"
+#include "common-hal/microcontroller/Pin.h"
 
 // Type object used in Python. Should be shared between ports.
 extern const mp_obj_type_t mcu_pin_type;
@@ -37,19 +37,26 @@ mcu_pin_obj_t *validate_obj_is_pin(mp_obj_t obj);
 mcu_pin_obj_t *validate_obj_is_pin_or_none(mp_obj_t obj);
 mcu_pin_obj_t *validate_obj_is_free_pin(mp_obj_t obj);
 mcu_pin_obj_t *validate_obj_is_free_pin_or_none(mp_obj_t obj);
-void validate_list_is_free_pins(qstr what, mcu_pin_obj_t **pins_out, mp_int_t max_pins, mp_obj_t seq, uint8_t *count_out);
-void validate_pins(qstr what, uint8_t *pin_nos, mp_int_t max_pins, mp_obj_t seq, uint8_t *count_out);
 
 void assert_pin_free(const mcu_pin_obj_t *pin);
 
-bool common_hal_mcu_pin_is_free(const mcu_pin_obj_t *pin);
-void common_hal_never_reset_pin(const mcu_pin_obj_t *pin);
-void common_hal_reset_pin(const mcu_pin_obj_t *pin);
-uint8_t common_hal_mcu_pin_number(const mcu_pin_obj_t *pin);
-void common_hal_mcu_pin_claim(const mcu_pin_obj_t *pin);
-void common_hal_mcu_pin_claim_number(uint8_t pin_no);
-void common_hal_mcu_pin_reset_number(uint8_t pin_no);
+void validate_pins(qstr what, uint8_t *pin_nos, mp_int_t max_pins, mp_obj_t seq, uint8_t *count_out);
+void validate_list_is_free_pins(qstr what, mcu_pin_obj_t **pins_out, mp_int_t max_pins, mp_obj_t seq, uint8_t *count_out);
 
-#define COMMON_HAL_MCU_NO_PIN ((uint8_t)0xff)
+// mark pin as busy
+void common_hal_mcu_claim_pin_number(uint8_t pin_no);
+void common_hal_mcu_claim_pin(const mcu_pin_obj_t *pin);
+
+// mark pin as free
+void common_hal_mcu_reset_pin_number(uint8_t pin_no);
+void common_hal_mcu_reset_pin(const mcu_pin_obj_t *pin);
+
+// mark pin as busy across vm runs
+void common_hal_mcu_never_reset_pin_number(uint8_t pin_no);
+void common_hal_mcu_never_reset_pin(const mcu_pin_obj_t *pin);
+
+// check pin state
+bool common_hal_mcu_pin_number_is_free(uint8_t pin_no);
+bool common_hal_mcu_pin_is_free(const mcu_pin_obj_t *pin);
 
 #endif  // MICROPY_INCLUDED_SHARED_BINDINGS_MICROCONTROLLER_PIN_H
